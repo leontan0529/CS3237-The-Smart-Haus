@@ -1,4 +1,3 @@
-version: '3.8'
 services:
   tsh-server:
     build:
@@ -12,7 +11,7 @@ services:
       postgres:
         condition: service_started
     environment:
-      - DB_URL=postgresql://admin:admin@postgres:5432/tsh-backend
+        DB_URL: postgresql://admin:admin@postgres:5432/tsh-backend?sslmode=disable
 
   postgres:
     image: postgres:14
