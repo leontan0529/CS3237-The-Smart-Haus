@@ -37,9 +37,9 @@ func StopServer(ctx context.Context) error {
 
 func initServer() (*http.Server, error) {
 	logging.Log(logging.LogRequest{
-		ServiceName: logging.SUB,
+		ServiceName: logging.HEALTH,
 		Level:       "INFO",
-		Message:     "Starting SUBSCRIBER Server on port 8080...",
+		Message:     "Starting HEALTH Server on port 8080...",
 	})
 
 	api := &healthAPI{}
