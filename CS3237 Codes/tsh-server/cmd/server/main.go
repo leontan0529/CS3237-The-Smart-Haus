@@ -36,6 +36,7 @@ func main() {
 	// Information to signify on logs that Server has started
 	logging.Log(logging.LogRequest{
 		ServiceName: logging.SERVER,
+		Endpoint:    logging.ROOT,
 		Level:       "INFO",
 		Message:     "Listening for Stop Signal...",
 	})
@@ -44,6 +45,7 @@ func main() {
 	<-sigs
 	logging.Log(logging.LogRequest{
 		ServiceName: logging.SERVER,
+		Endpoint:    logging.ROOT,
 		Level:       "INFO",
 		Message:     "Conducting Graceful Shutdown",
 	})
@@ -56,8 +58,9 @@ func main() {
 	if err := pub.StopServer(ctx); err != nil {
 		logging.Log(logging.LogRequest{
 			ServiceName: logging.PUB,
+			Endpoint:    logging.ROOT,
 			Level:       "ERROR",
-			Message:     fmt.Sprintf("Failed to stop publisher server: %v", err),
+			Message:     fmt.Sprintf("Failed to stop PUBLISHER server: %v", err),
 		})
 	}
 
@@ -65,8 +68,9 @@ func main() {
 	if err := sub.StopServer(ctx); err != nil {
 		logging.Log(logging.LogRequest{
 			ServiceName: logging.SUB,
+			Endpoint:    logging.ROOT,
 			Level:       "ERROR",
-			Message:     fmt.Sprintf("Failed to stop subscriber server: %v", err),
+			Message:     fmt.Sprintf("Failed to stop SUBSCRIBER server: %v", err),
 		})
 	}
 
@@ -74,8 +78,9 @@ func main() {
 	if err := health.StopServer(ctx); err != nil {
 		logging.Log(logging.LogRequest{
 			ServiceName: logging.HEALTH,
+			Endpoint:    logging.ROOT,
 			Level:       "ERROR",
-			Message:     fmt.Sprintf("Failed to stop health server: %v", err),
+			Message:     fmt.Sprintf("Failed to stop HEALTH server: %v", err),
 		})
 	}
 
@@ -85,6 +90,7 @@ func main() {
 	// Final statement to show SCRIBE has exited
 	logging.Log(logging.LogRequest{
 		ServiceName: logging.SERVER,
+		Endpoint:    logging.ROOT,
 		Level:       "INFO",
 		Message:     "Server Exited Properly",
 	})

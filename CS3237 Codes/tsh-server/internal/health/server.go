@@ -37,9 +37,10 @@ func StopServer(ctx context.Context) error {
 
 func initServer() (*http.Server, error) {
 	logging.Log(logging.LogRequest{
-		ServiceName: logging.SUB,
+		ServiceName: logging.HEALTH,
+		Endpoint:    logging.ROOT,
 		Level:       "INFO",
-		Message:     "Starting SUBSCRIBER Server on port 8080...",
+		Message:     "Starting HEALTH Server on port 9000...",
 	})
 
 	api := &healthAPI{}
@@ -47,11 +48,11 @@ func initServer() (*http.Server, error) {
 	mux.HandleFunc("/healthz", api.readinessProbe)
 	mux.HandleFunc("/liveness", api.livenessProbe)
 
-	server := &http.Server{
+	healthServer := &http.Server{
 		Addr:              ":9000",
 		Handler:           mux,
 		ReadHeaderTimeout: 5 * time.Second, // Adjust this value as needed
 	}
 
-	return server, nil
+	return healthServer, nil
 }

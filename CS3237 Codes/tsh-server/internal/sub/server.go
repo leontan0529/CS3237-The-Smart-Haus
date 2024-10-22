@@ -23,6 +23,7 @@ func StartServer() {
 		if err := s.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 			logging.Log(logging.LogRequest{
 				ServiceName: logging.SUB,
+				Endpoint:    logging.ROOT,
 				Level:       "ERROR",
 				Message:     fmt.Sprintf("Failed to Serve: %v", err),
 			})
@@ -38,23 +39,22 @@ func StopServer(ctx context.Context) error {
 func initServer() (*http.Server, error) {
 	logging.Log(logging.LogRequest{
 		ServiceName: logging.SUB,
+		Endpoint:    logging.ROOT,
 		Level:       "INFO",
 		Message:     "Starting SUBSCRIBER Server on port 8080...",
 	})
 
 	api := &subAPI{}
 	mux := http.NewServeMux()
-	mux.HandleFunc("sub/data", api.humidity)
-	mux.HandleFunc("sub/motion", api.motion)
-	mux.HandleFunc("sub/brightness", api.brightness)
-	mux.HandleFunc("sub/temperature", api.temperature)
-	mux.HandleFunc("sub/images", api.images)
+	mux.HandleFunc("/esp32-th", api.thEsp32)
+	mux.HandleFunc("/esp32-mb", api.mbEsp32)
+	mux.HandleFunc("/esp32-images", api.imagesEsp32)
 
-	server := &http.Server{
+	subServer := &http.Server{
 		Addr:              ":8080",
 		Handler:           mux,
 		ReadHeaderTimeout: 5 * time.Second, // Adjust this value as needed
 	}
 
-	return server, nil
+	return subServer, nil
 }

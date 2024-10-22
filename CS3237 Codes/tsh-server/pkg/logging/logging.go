@@ -47,12 +47,13 @@ func Log(req LogRequest) {
 func formatLog(req LogRequest) string {
 	pc, filename, line, _ := runtime.Caller(3)
 	return fmt.Sprintf(
-		"\n->%s\n->[%s:%d]\n->[%s] [%s] [%s] %s: %s\n",
+		"\n->%s\n->[%s:%d]\n->[%s] [%s] %s: %s\n",
 		runtime.FuncForPC(pc).Name(),
 		filename,
 		line,
 		req.ServiceName, // Service name
-		req.Level,       // Log level
-		req.Message,     // The actual log message
+		req.Endpoint,
+		req.Level,   // Log level
+		req.Message, // The actual log message
 	)
 }

@@ -23,6 +23,7 @@ func StartServer() {
 		if err := s.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 			logging.Log(logging.LogRequest{
 				ServiceName: logging.PUB,
+				Endpoint:    logging.ROOT,
 				Level:       "ERROR",
 				Message:     fmt.Sprintf("Failed to Serve: %v", err),
 			})
@@ -38,23 +39,24 @@ func StopServer(ctx context.Context) error {
 func initServer() (*http.Server, error) {
 	logging.Log(logging.LogRequest{
 		ServiceName: logging.PUB,
+		Endpoint:    logging.ROOT,
 		Level:       "INFO",
 		Message:     "Starting PUBLISHER Server on port 8081...",
 	})
 
 	api := &pubAPI{}
 	mux := http.NewServeMux()
-	mux.HandleFunc("pub/humidity", api.humidity)
-	mux.HandleFunc("pub/motion", api.motion)
-	mux.HandleFunc("pub/brightness", api.brightness)
-	mux.HandleFunc("pub/temperature", api.temperature)
-	mux.HandleFunc("pub/images", api.images)
+	mux.HandleFunc("/humidity", api.humidity)
+	mux.HandleFunc("/motion", api.motion)
+	mux.HandleFunc("/brightness", api.brightness)
+	mux.HandleFunc("/temperature", api.temperature)
+	mux.HandleFunc("/images", api.images)
 
-	server := &http.Server{
+	pubServer := &http.Server{
 		Addr:              ":8081",
 		Handler:           mux,
 		ReadHeaderTimeout: 5 * time.Second, // Adjust this value as needed
 	}
 
-	return server, nil
+	return pubServer, nil
 }
