@@ -16,9 +16,11 @@ import (
 )
 
 func main() {
-	// Initialize the logging
-	logging.Init()
+	//Set up essentials
 	database.Init()
+
+	// Initialize server logging agent
+	logging.Init()
 
 	// Start the health check server
 	health.StartServer()

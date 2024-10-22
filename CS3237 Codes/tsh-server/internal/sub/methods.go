@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"tsh-server/pkg/database"
 	"tsh-server/pkg/logging"
 )
 
@@ -35,7 +36,6 @@ func (s *subAPI) thEsp32(w http.ResponseWriter, r *http.Request) {
 	}
 	defer r.Body.Close()
 
-	fmt.Println(string(body))
 	var data Esp32ThData
 	err = json.Unmarshal(body, &data)
 	if err != nil {
@@ -57,9 +57,29 @@ func (s *subAPI) thEsp32(w http.ResponseWriter, r *http.Request) {
 		Message:     fmt.Sprintf("Received Data : %+v\n", data),
 	})
 
+	// Insert data into the database
+	err = database.InsertThData(data.Temperature, data.Humidity)
+	if err != nil {
+		logging.Log(logging.LogRequest{
+			ServiceName: logging.SUB,
+			Endpoint:    logging.ESP32TH,
+			Level:       "ERROR",
+			Message:     fmt.Sprintf("Error Writing to Database: %+v\n", err),
+		})
+	}
+
 	// You can add more processing logic here if needed
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("Data received successfully"))
+	_, err = w.Write([]byte("Data received successfully"))
+	if err != nil {
+		logging.Log(logging.LogRequest{
+			ServiceName: logging.SUB,
+			Endpoint:    logging.ESP32TH,
+			Level:       "ERROR",
+			Message:     fmt.Sprintf("Error Responding to Request: %+v\n", err),
+		})
+		return
+	}
 }
 
 func (s *subAPI) mbEsp32(w http.ResponseWriter, r *http.Request) {
@@ -87,7 +107,6 @@ func (s *subAPI) mbEsp32(w http.ResponseWriter, r *http.Request) {
 	}
 	defer r.Body.Close()
 
-	fmt.Println(string(body))
 	var data Esp32MbData
 	err = json.Unmarshal(body, &data)
 	if err != nil {
@@ -106,12 +125,32 @@ func (s *subAPI) mbEsp32(w http.ResponseWriter, r *http.Request) {
 		ServiceName: logging.SUB,
 		Endpoint:    logging.ESP32MB,
 		Level:       "INFO",
-		Message:     fmt.Sprintf("Received Data : %+v\n", data),
+		Message:     fmt.Sprintf("Received Data: %+v\n", data),
 	})
+
+	// Insert data into the database
+	err = database.InsertMbData(data.Motion, data.Brightness)
+	if err != nil {
+		logging.Log(logging.LogRequest{
+			ServiceName: logging.SUB,
+			Endpoint:    logging.ESP32MB,
+			Level:       "ERROR",
+			Message:     fmt.Sprintf("Error Writing to Database: %+v\n", err),
+		})
+	}
 
 	// You can add more processing logic here if needed
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("Data received successfully"))
+	_, err = w.Write([]byte("Data received successfully"))
+	if err != nil {
+		logging.Log(logging.LogRequest{
+			ServiceName: logging.SUB,
+			Endpoint:    logging.ESP32MB,
+			Level:       "ERROR",
+			Message:     fmt.Sprintf("Error Responding to Request: %+v\n", err),
+		})
+		return
+	}
 }
 
 // TODO: to determine necessity of this

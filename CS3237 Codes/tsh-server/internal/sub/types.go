@@ -12,5 +12,5 @@ type Esp32MbData struct {
 
 // TODO: Decide to store on ESP32 side or transmit images via some RAW format and process in server
 type ImageData struct {
-	Value string `json:"value"`
+	Url string `json:"url,string"`
 }

@@ -46,11 +46,10 @@ func initServer() (*http.Server, error) {
 
 	api := &pubAPI{}
 	mux := http.NewServeMux()
-	mux.HandleFunc("/humidity", api.humidity)
-	mux.HandleFunc("/motion", api.motion)
-	mux.HandleFunc("/brightness", api.brightness)
-	mux.HandleFunc("/temperature", api.temperature)
-	mux.HandleFunc("/images", api.images)
+	mux.HandleFunc("/esp32-th", api.thEsp32)
+	mux.HandleFunc("/esp32-mb", api.mbEsp32)
+	mux.HandleFunc("/esp32-images", api.imagesEsp32)
+	mux.HandleFunc("/all", api.all)
 
 	pubServer := &http.Server{
 		Addr:              ":8081",
