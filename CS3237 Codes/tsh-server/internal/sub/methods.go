@@ -54,7 +54,7 @@ func (s *subAPI) thEsp32(w http.ResponseWriter, r *http.Request) {
 		ServiceName: logging.SUB,
 		Endpoint:    logging.ESP32TH,
 		Level:       "INFO",
-		Message:     fmt.Sprintf("Received Data : %+v\n", data),
+		Message:     fmt.Sprintf("From %+v Received Data : %+v\n", r.RemoteAddr, data),
 	})
 
 	// Insert data into the database
@@ -125,7 +125,7 @@ func (s *subAPI) mbEsp32(w http.ResponseWriter, r *http.Request) {
 		ServiceName: logging.SUB,
 		Endpoint:    logging.ESP32MB,
 		Level:       "INFO",
-		Message:     fmt.Sprintf("Received Data: %+v\n", data),
+		Message:     fmt.Sprintf("From %+v Received Data : %+v\n", r.RemoteAddr, data),
 	})
 
 	// Insert data into the database

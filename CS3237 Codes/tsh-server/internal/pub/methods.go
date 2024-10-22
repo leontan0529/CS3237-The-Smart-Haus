@@ -44,6 +44,12 @@ func (h *pubAPI) thEsp32(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
+	logging.Log(logging.LogRequest{
+		ServiceName: logging.PUB,
+		Endpoint:    logging.ESP32TH,
+		Level:       "INFO",
+		Message:     fmt.Sprintf("Responded to: %v", r.RemoteAddr),
+	})
 }
 
 func (h *pubAPI) mbEsp32(w http.ResponseWriter, r *http.Request) {
@@ -80,6 +86,12 @@ func (h *pubAPI) mbEsp32(w http.ResponseWriter, r *http.Request) {
 		})
 		return
 	}
+	logging.Log(logging.LogRequest{
+		ServiceName: logging.PUB,
+		Endpoint:    logging.ESP32MB,
+		Level:       "INFO",
+		Message:     fmt.Sprintf("Responded to: %v", r.RemoteAddr),
+	})
 }
 
 func (h *pubAPI) imagesEsp32(w http.ResponseWriter, r *http.Request) {

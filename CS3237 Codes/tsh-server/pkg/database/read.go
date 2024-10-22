@@ -24,7 +24,7 @@ func GetAllThData() ([]Esp32ThData, error) {
 
 // Function to read all rows from the mb_data table
 func GetAllMbData() ([]Esp32MbData, error) {
-	query := `SELECT motion, brightness, created_at FROM th_data`
+	query := `SELECT motion, brightness, created_at FROM mb_data`
 	rows, err := db.Query(query)
 	if err != nil {
 		return nil, err

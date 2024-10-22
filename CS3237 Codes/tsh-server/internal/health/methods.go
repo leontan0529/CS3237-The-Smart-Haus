@@ -14,7 +14,7 @@ func (h *healthAPI) readinessProbe(w http.ResponseWriter, r *http.Request) {
 		ServiceName: logging.HEALTH,
 		Endpoint:    logging.HEALTHZ,
 		Level:       "INFO",
-		Message:     fmt.Sprintf("Received a health check from: %v", r.Host),
+		Message:     fmt.Sprintf("Received a health check from: %v", r.RemoteAddr),
 	})
 	w.WriteHeader(http.StatusOK)
 }
@@ -25,7 +25,7 @@ func (h *healthAPI) livenessProbe(w http.ResponseWriter, r *http.Request) {
 		ServiceName: logging.HEALTH,
 		Endpoint:    logging.LIVENESS,
 		Level:       "INFO",
-		Message:     fmt.Sprintf("Received a liveness check from: %v", r.Host),
+		Message:     fmt.Sprintf("Received a liveness check from: %v", r.RemoteAddr),
 	})
 	w.WriteHeader(http.StatusOK)
 }

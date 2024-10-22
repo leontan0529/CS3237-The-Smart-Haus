@@ -45,12 +45,19 @@ func Log(req LogRequest) {
 }
 
 func formatLog(req LogRequest) string {
-	pc, filename, line, _ := runtime.Caller(3)
+	var stackTrace string
+	// Loop through the stack frames
+	for i := 0; i < 10; i++ { // Adjust the limit based on how deep you want the trace
+		pc, filename, line, ok := runtime.Caller(i)
+		if !ok {
+			break
+		}
+		funcName := runtime.FuncForPC(pc).Name()
+		stackTrace += fmt.Sprintf("-->{Trace #%d}[%s:%d][%s]\n", i, filename, line, funcName)
+	}
 	return fmt.Sprintf(
-		"\n->%s\n->[%s:%d]\n->[%s] [%s] %s: %s\n",
-		runtime.FuncForPC(pc).Name(),
-		filename,
-		line,
+		"\n<Stack Trace>\n%s<Logging Note>\n--->[%s][%s][%s][%s]\n",
+		stackTrace,
 		req.ServiceName, // Service name
 		req.Endpoint,
 		req.Level,   // Log level

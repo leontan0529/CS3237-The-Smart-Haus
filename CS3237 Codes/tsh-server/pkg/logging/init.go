@@ -28,10 +28,10 @@ func Init() {
 		log.Fatalf("Failed to open log file for writing: %v", err)
 	}
 
-	InfoLogger = outputLog(output, "\n<INFO>: ")
-	WarningLogger = outputLog(output, "\n<WARNING>: ")
-	ErrorLogger = outputLog(output, "\n<ERROR>: ")
-	DebugLogger = outputLog(output, "\n<DEBUG>: ")
+	InfoLogger = outputLog(output, "<NEW LOG ENTRY>\n->[INFO] ")
+	WarningLogger = outputLog(output, "<NEW LOG ENTRY>\n->[WARNING] ")
+	ErrorLogger = outputLog(output, "<NEW LOG ENTRY>\n->[ERROR] ")
+	DebugLogger = outputLog(output, "<NEW LOG ENTRY>\n->[DEBUG] ")
 }
 
 func outputLog(output *os.File, prefix string) func(string) {
