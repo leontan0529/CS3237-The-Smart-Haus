@@ -3,6 +3,7 @@ services:
     build:
       context: ../
       dockerfile: .docker/Dockerfile
+    container_name: tsh-server
     ports:
       - "8080:8080"
       - "8081:8081"
@@ -12,9 +13,12 @@ services:
         condition: service_started
     environment:
       - DB_URL=postgresql://admin:admin@postgres:5432/tsh-backend?sslmode=disable
+    networks:
+      - tsh_net
 
   postgres:
     image: postgres:14
+    container_name: postgres
     environment:
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: admin
@@ -24,6 +28,43 @@ services:
       - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
     ports:
       - "5432:5432"
+    networks:
+      - tsh_net
+
+  grafana:
+    image: grafana/grafana
+    container_name: grafana
+    restart: always
+    entrypoint: >
+      /bin/sh -c "
+      cd /var/lib/grafana &&
+      mkdir -p dashboards &&
+      /run.sh"
+    ports:
+     - "3030:3000"
+    volumes:
+      - grafana-storage:/var/lib/grafana
+      - ./grafana/provisioning/:/etc/grafana/provisioning/
+      - ./grafana/provisioning/dashboards/:/var/lib/grafana/dashboards/
+    depends_on:
+      - postgres
+    environment:
+      - GF_AUTH_DEFAULT_HOME_DASHBOARD_PATH=/var/lib/grafana/dashboards/dashboard.json
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_DATABASE_TYPE=postgres
+      - GF_DATABASE_HOST=postgres:5432
+      - GF_DATABASE_NAME=tsh-backend
+      - GF_DATABASE_USER=admin
+      - GF_DATABASE_PASSWORD=admin
+      - GF_DATABASE_SSL_MODE=disable
+    networks:
+      - tsh_net
 
 volumes:
   postgres_data:
+  grafana-storage: {}
+
+networks:
+  tsh_net:
+    driver: bridge

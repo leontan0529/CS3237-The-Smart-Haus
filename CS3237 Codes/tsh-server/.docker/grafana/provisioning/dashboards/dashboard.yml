@@ -1,7 +1,7 @@
 apiVersion: 1
 
 providers:
-- name: EE4216
+- name: 'CS3237'
   orgId: 1
   folder: ''
   type: file
