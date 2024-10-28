@@ -18,7 +18,6 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 1,
   "links": [],
   "panels": [
     {
@@ -85,7 +84,7 @@
         "showThresholdMarkers": true,
         "sizing": "auto"
       },
-      "pluginVersion": "11.2.1",
+      "pluginVersion": "11.2.0",
       "title": "Current Temperature",
       "type": "gauge"
     },
@@ -140,7 +139,7 @@
         "showThresholdMarkers": true,
         "sizing": "auto"
       },
-      "pluginVersion": "11.2.1",
+      "pluginVersion": "11.2.0",
       "title": "Current Humidity",
       "type": "gauge"
     },
@@ -196,9 +195,34 @@
         "showThresholdMarkers": true,
         "sizing": "auto"
       },
-      "pluginVersion": "11.2.1",
+      "pluginVersion": "11.2.0",
       "title": "Current Brightness",
       "type": "gauge"
+    },
+    {
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "my_unique_uid"
+      },
+      "gridPos": {
+        "h": 3,
+        "w": 3,
+        "x": 0,
+        "y": 9
+      },
+      "id": 13,
+      "options": {
+        "code": {
+          "language": "plaintext",
+          "showLineNumbers": false,
+          "showMiniMap": false
+        },
+        "content": "<div id=\"controlButton\">\n  <button innerHTML id=\"toggleButton\" onclick=\"toggleState()\" style=\"padding: 10px 20px; font-size: 16px; background-color: red; color: white; border: none; cursor: pointer;\">\n    Turn Off\n  </button>\n</div>\n\n<script>\n  let isOn = false;  // Initial state is \"Off\"\n\n  function toggleState() {\n    // Determine the new state and button settings\n    const esp32IP = \"http://192.168.4.2/control\";  // Replace with your ESP32 IP\n    const state = isOn ? \"on\" : \"off\";\n    const color = isOn ? \"green\" : \"red\";\n    const label = isOn ? \"Turn On\" : \"Turn Off\";\n\n    // Update the button color and text\n    const button = document.getElementById(\"toggleButton\");\n    button.style.backgroundColor = color;\n    button.innerHTML = label;\n\n    // Send the HTTP POST request to ESP32\n    fetch(`${esp32IP}?state=${state}`, {\n      method: \"POST\",\n      headers: {\n        \"Content-Type\": \"application/x-www-form-urlencoded\"\n      }\n    })\n    .then(response => {\n      if (response.ok) {\n        console.log(`ESP32 state set to: ${state}`);\n      } else {\n        console.error(\"Error sending request to ESP32\");\n      }\n    })\n    .catch(error => {\n      console.error(\"Network error:\", error);\n    });\n\n    // Toggle the state\n    isOn = !isOn;\n  }\n</script>\n",
+        "mode": "html"
+      },
+      "pluginVersion": "11.2.0",
+      "title": "Test Control ",
+      "type": "text"
     },
     {
       "collapsed": false,
@@ -206,7 +230,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 9
+        "y": 12
       },
       "id": 9,
       "panels": [],
@@ -304,7 +328,7 @@
         "h": 10,
         "w": 8,
         "x": 0,
-        "y": 10
+        "y": 13
       },
       "id": 1,
       "options": {
@@ -430,7 +454,7 @@
         "h": 10,
         "w": 8,
         "x": 8,
-        "y": 10
+        "y": 13
       },
       "id": 2,
       "options": {
@@ -556,7 +580,7 @@
         "h": 10,
         "w": 8,
         "x": 16,
-        "y": 10
+        "y": 13
       },
       "id": 6,
       "options": {
@@ -595,7 +619,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 20
+        "y": 23
       },
       "id": 5,
       "panels": [],
@@ -656,7 +680,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 21
+        "y": 24
       },
       "id": 11,
       "options": {
@@ -697,7 +721,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 21
+        "y": 24
       },
       "id": 12,
       "options": {
@@ -728,6 +752,6 @@
   "timezone": "browser",
   "title": "The Smart Haus",
   "uid": "cdzte3nlkywaoa",
-  "version": 10,
+  "version": 1,
   "weekStart": ""
 }
