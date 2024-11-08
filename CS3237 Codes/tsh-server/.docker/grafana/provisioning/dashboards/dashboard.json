@@ -340,9 +340,9 @@
     },
     {
       "datasource": {
-        "default": false,
-        "type": "prometheus",
-        "uid": "PBFA97CFB590B2093"
+        "default": true,
+        "type": "grafana-postgresql-datasource",
+        "uid": "my_unique_uid"
       },
       "fieldConfig": {
         "defaults": {
@@ -356,16 +356,12 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
+                "color": "dark-red",
                 "value": null
               },
               {
-                "color": "#EAB839",
-                "value": 15
-              },
-              {
-                "color": "red",
-                "value": 55
+                "color": "dark-green",
+                "value": 1
               }
             ]
           },
@@ -405,19 +401,39 @@
             "uid": "PBFA97CFB590B2093"
           },
           "disableTextWrap": false,
-          "editorMode": "builder",
+          "editorMode": "code",
           "exemplar": false,
           "expr": "gas{job=\"prometheus-exporter\"}",
+          "format": "table",
           "fullMetaSearch": false,
           "includeNullMetadata": true,
           "instant": true,
           "legendFormat": "__auto",
           "range": false,
+          "rawQuery": true,
+          "rawSql": "Select motion from mb_data;",
           "refId": "A",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
           "useBackend": false
         }
       ],
-      "title": " (Pending) Current Carbon Monoxide (CO) Level",
+      "title": "Person Detected",
       "type": "stat"
     },
     {
@@ -914,9 +930,9 @@
     },
     {
       "datasource": {
-        "default": false,
-        "type": "prometheus",
-        "uid": "PBFA97CFB590B2093"
+        "default": true,
+        "type": "grafana-postgresql-datasource",
+        "uid": "my_unique_uid"
       },
       "fieldConfig": {
         "defaults": {
@@ -966,16 +982,12 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green",
+                "color": "dark-red",
                 "value": null
               },
               {
-                "color": "#EAB839",
-                "value": 15
-              },
-              {
-                "color": "red",
-                "value": 55
+                "color": "dark-green",
+                "value": 1
               }
             ]
           },
@@ -1009,19 +1021,39 @@
             "uid": "PBFA97CFB590B2093"
           },
           "disableTextWrap": false,
-          "editorMode": "builder",
+          "editorMode": "code",
           "expr": "gas{job=\"prometheus-exporter\"}",
+          "format": "table",
           "fullMetaSearch": false,
           "hide": false,
           "includeNullMetadata": true,
           "instant": false,
           "legendFormat": "__auto",
           "range": true,
+          "rawQuery": true,
+          "rawSql": "Select motion from mb_data;",
           "refId": "A",
+          "sql": {
+            "columns": [
+              {
+                "parameters": [],
+                "type": "function"
+              }
+            ],
+            "groupBy": [
+              {
+                "property": {
+                  "type": "string"
+                },
+                "type": "groupBy"
+              }
+            ],
+            "limit": 50
+          },
           "useBackend": false
         }
       ],
-      "title": "(Pending) Carbon Monoxide (CO) Level",
+      "title": "Person Detected",
       "type": "timeseries"
     },
     {
@@ -1103,6 +1135,6 @@
   "timezone": "browser",
   "title": "The Smart Haus",
   "uid": "cdzte3nlkywaoa",
-  "version": 3,
+  "version": 4,
   "weekStart": ""
 }
