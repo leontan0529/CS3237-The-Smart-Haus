@@ -76,7 +76,7 @@
       "id": 3,
       "options": {
         "colorMode": "value",
-        "graphMode": "area",
+        "graphMode": "none",
         "justifyMode": "auto",
         "orientation": "auto",
         "percentChangeColorMode": "standard",
@@ -178,7 +178,7 @@
       "id": 4,
       "options": {
         "colorMode": "value",
-        "graphMode": "area",
+        "graphMode": "none",
         "justifyMode": "auto",
         "orientation": "auto",
         "percentChangeColorMode": "standard",
@@ -280,7 +280,7 @@
       "id": 7,
       "options": {
         "colorMode": "value",
-        "graphMode": "area",
+        "graphMode": "none",
         "justifyMode": "auto",
         "orientation": "auto",
         "percentChangeColorMode": "standard",
@@ -349,9 +349,24 @@
           "color": {
             "mode": "thresholds"
           },
-          "decimals": 2,
           "fieldMinMax": false,
-          "mappings": [],
+          "mappings": [
+            {
+              "options": {
+                "0": {
+                  "color": "dark-red",
+                  "index": 0,
+                  "text": "No Motion"
+                },
+                "1": {
+                  "color": "dark-green",
+                  "index": 1,
+                  "text": "Motion Detected!"
+                }
+              },
+              "type": "value"
+            }
+          ],
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -364,8 +379,7 @@
                 "value": 1
               }
             ]
-          },
-          "unit": "ppm"
+          }
         },
         "overrides": []
       },
@@ -378,7 +392,7 @@
       "id": 18,
       "options": {
         "colorMode": "value",
-        "graphMode": "area",
+        "graphMode": "none",
         "justifyMode": "auto",
         "orientation": "auto",
         "percentChangeColorMode": "standard",
@@ -386,7 +400,7 @@
           "calcs": [
             "last"
           ],
-          "fields": "",
+          "fields": "/.*/",
           "values": false
         },
         "showPercentChange": false,
@@ -639,7 +653,7 @@
           "legendFormat": "__auto",
           "range": true,
           "rawQuery": true,
-          "rawSql": "Select temperature from th_data;",
+          "rawSql": "Select temperature, created_at from th_data;\n",
           "refId": "A",
           "sql": {
             "columns": [
@@ -771,7 +785,7 @@
           "legendFormat": "__auto",
           "range": true,
           "rawQuery": true,
-          "rawSql": "Select humidity from th_data;",
+          "rawSql": "Select humidity, created_at from th_data;",
           "refId": "A",
           "sql": {
             "columns": [
@@ -903,7 +917,7 @@
           "legendFormat": "__auto",
           "range": true,
           "rawQuery": true,
-          "rawSql": "Select brightness from mb_data;",
+          "rawSql": "Select brightness, created_at from mb_data;",
           "refId": "A",
           "sql": {
             "columns": [
@@ -945,12 +959,12 @@
             "axisColorMode": "text",
             "axisLabel": "",
             "axisPlacement": "auto",
-            "axisSoftMax": 70,
+            "axisSoftMax": 1,
             "axisSoftMin": 0,
             "barAlignment": 0,
             "barWidthFactor": 0.6,
             "drawStyle": "line",
-            "fillOpacity": 20,
+            "fillOpacity": 0,
             "gradientMode": "none",
             "hideFrom": {
               "legend": false,
@@ -962,13 +976,13 @@
             "lineStyle": {
               "fill": "solid"
             },
-            "lineWidth": 2,
-            "pointSize": 10,
+            "lineWidth": 0.4,
+            "pointSize": 3,
             "scaleDistribution": {
               "type": "linear"
             },
             "showPoints": "auto",
-            "spanNulls": 300000,
+            "spanNulls": false,
             "stacking": {
               "group": "A",
               "mode": "none"
@@ -986,12 +1000,15 @@
                 "value": null
               },
               {
+                "color": "dark-red",
+                "value": 0
+              },
+              {
                 "color": "dark-green",
                 "value": 1
               }
             ]
-          },
-          "unit": "ppm"
+          }
         },
         "overrides": []
       },
@@ -1031,7 +1048,7 @@
           "legendFormat": "__auto",
           "range": true,
           "rawQuery": true,
-          "rawSql": "Select motion from mb_data;",
+          "rawSql": "Select motion, created_at from mb_data;",
           "refId": "A",
           "sql": {
             "columns": [
@@ -1087,7 +1104,7 @@
           "showLineNumbers": false,
           "showMiniMap": false
         },
-        "content": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta charset=\"UTF-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n    <title>Auto-refreshing Image</title>\n    <script>\n        // Function to reload the image every 5 seconds (or adjust as needed)\n        function refreshImage() {\n            const image = document.getElementById(\"auto-refresh-image\");\n            image.src = \"http://localhost:9093/data/images/image.jpeg?timestamp=\" + new Date().getTime();\n        }\n        setInterval(refreshImage, 5000); // Refresh every 5 seconds\n    </script>\n</head>\n<body>\n    <img id=\"auto-refresh-image\" src=\"http://localhost:9093/data/images/image.jpeg\" alt=\"Description\" width=\"600\" height=\"400\">\n</body>\n</html>",
+        "content": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta charset=\"UTF-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n    <title>Auto-refreshing Image</title>\n    <script>\n        // Function to reload the image every 5 seconds (or adjust as needed)\n        function refreshImage() {\n            const image = document.getElementById(\"auto-refresh-image\");\n            image.src = \"http://localhost:9092/data/images/image.jpeg?timestamp=\" + new Date().getTime();\n        }\n        setInterval(refreshImage, 5000); // Refresh every 5 seconds\n    </script>\n</head>\n<body>\n    <img id=\"auto-refresh-image\" src=\"http://localhost:9093/data/images/image.jpeg\" alt=\"Description\" width=\"600\" height=\"400\">\n</body>\n</html>",
         "mode": "html"
       },
       "pluginVersion": "11.2.0",
@@ -1135,6 +1152,6 @@
   "timezone": "browser",
   "title": "The Smart Haus",
   "uid": "cdzte3nlkywaoa",
-  "version": 4,
+  "version": 7,
   "weekStart": ""
 }

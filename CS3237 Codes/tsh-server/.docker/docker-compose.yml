@@ -13,6 +13,37 @@ services:
         condition: service_started
     environment:
       - DB_URL=postgresql://admin:admin@postgres:5432/tsh-backend?sslmode=disable
+      - TZ=UTC-8
+    networks:
+      - tsh_net
+
+  # Image_Handler/HTTP
+  image-post:
+    build:
+      context: ./image_handler/http
+    container_name: image-post
+    restart: always
+    volumes:
+      - ./image_handler/images:/images
+    ports:
+      - '9091:9091'
+    environment:
+      - TZ=UTC-8
+    networks:
+      - tsh_net
+
+  # Image_Handler/NGINX
+  image-nginx:
+    build:
+      context: ./image_handler/nginx
+    container_name: image-nginx
+    restart: always
+    volumes:
+      - ./image_handler/images:/etc/nginx/html/data/images
+    ports:
+      - '9092:80'
+    environment:
+      - TZ=UTC-8
     networks:
       - tsh_net
 
@@ -60,6 +91,7 @@ services:
       - GF_DATABASE_SSL_MODE=disable
       #- GF_INSTALL_PLUGINS=speakyourcode-button-panel
       - GF_PANELS_DISABLE_SANITIZE_HTML=true
+      - TZ=UTC-8
     networks:
       - tsh_net
     extra_hosts:
