@@ -4,9 +4,12 @@
 #include <WiFiManager.h>
 #include <Wire.h>
 
+#define DOOR_SENSOR_PIN  23
 int buzzer = 5; //Define buzzer receiver pin
+int doorState = LOW;
 
-bool buzzer_status = false;
+//true is arm, false is disarm
+bool alarm_status = false;
 
 // Web server running on port 80
 WebServer server(80);
@@ -22,7 +25,7 @@ void handlePost() {
   String body = server.arg("plain");
   deserializeJson(jsonDocument, body);
 
-  buzzer_status = jsonDocument["buzzer_status"];
+  alarm_status = jsonDocument["alarm_status"];
 
   // Respond to the client
   server.send(200, "application/json", "{}");
@@ -44,7 +47,7 @@ void addJsonObject(char *name, int value) {
 void getValues() {
   Serial.println("Get all values");
   jsonDocument.clear(); // Clear json buffer
-  addJsonObject("buzzer_status", buzzer_status);
+  addJsonObject("alarm_status", alarm_status);
   serializeJson(jsonDocument, buffer);
   server.send(200, "application/json", buffer);
 }
@@ -82,17 +85,48 @@ void setup() {
   setupApi();
 
   pinMode(buzzer, OUTPUT);//Set the output mode
+  pinMode(DOOR_SENSOR_PIN, INPUT_PULLUP); // set ESP32 pin to input pull-up mode
 }
 
 void loop() {
   server.handleClient();
 
-//active low, so opposite
-  if (!buzzer_status) {
-    digitalWrite(buzzer, HIGH); //sound production
-  } else {
-    digitalWrite(buzzer, LOW); //Stop the sound
+  doorState = digitalRead(DOOR_SENSOR_PIN); // read state
+
+   if (doorState == HIGH) {
+    Serial.println("The door is open, turns on Piezo Buzzer");
+    alarm_status = 1;
+    digitalWrite(buzzer, LOW);
   }
-  
-  delay(1000);
+
+  if (!alarm_status) {
+      digitalWrite(buzzer, HIGH); //Stop the sound
+  }
+
+  Serial.print("Door state: ");
+  Serial.println(doorState);
+  Serial.print("Alarm status: ");
+  Serial.println(alarm_status);
+
+
+//active low, so opposite
+
+/*
+if (!alarm_status) {
+      digitalWrite(buzzer, HIGH); //Stop the sound
+    } else {
+      if (doorState == LOW) {
+    Serial.println("The door is closed, turns off Piezo Buzzer");
+    digitalWrite(BUZZER_PIN, HIGH);
+    }
+
+  if (doorState == LOW) {
+    Serial.println("The door is closed, turns off Piezo Buzzer");
+    digitalWrite(BUZZER_PIN, HIGH);
+  } else {
+    Serial.println("The door is open, turns on Piezo Buzzer");
+    digitalWrite(BUZZER_PIN, LOW);
+  }
+*/
+
 }

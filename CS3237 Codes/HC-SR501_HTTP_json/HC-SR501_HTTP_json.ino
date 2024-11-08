@@ -2,6 +2,9 @@
 #include <WebServer.h>
 #include <ArduinoJson.h>
 #include <WiFiManager.h>
+#include <Adafruit_Sensor.h>
+#include <WiFi.h>
+#include <HTTPClient.h>
 
 int motion;
 

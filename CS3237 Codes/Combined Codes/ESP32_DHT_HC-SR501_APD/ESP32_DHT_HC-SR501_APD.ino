@@ -27,11 +27,17 @@ uint16_t ambient_light = 0;
 const char* ssid = "ESP32_Access_Point";
 const char* password = "password123";
 
-const char* serverName = "http://192.168.4.2:8080/mb";
+const char* serverName1 = "http://192.168.4.2:8080/esp32-th";
+const char* serverName2 = "http://192.168.4.1:80/post-data";
+
 
 // Timer set to 5 seconds (5000)
-unsigned long timerDelay = 5000;
-unsigned long lastTime = 0;
+unsigned long timerDelay1 = 5000;
+unsigned long timerDelay2 = 6000;
+
+//unsigned long lastTime = 0;
+unsigned long lastTime1 = 0;
+unsigned long lastTime2 = 0;
 
 WebServer server(80);
 
@@ -127,6 +133,7 @@ void loop() {
     humidity = humidityEvent.relative_humidity;
   }
 
+/*
   //Presence Detection
   int sensorValue = digitalRead(PIR_SENSOR_PIN);
   if (sensorValue == HIGH) {
@@ -134,6 +141,7 @@ void loop() {
   } else {
     motion = 0;
   }
+  */
 
   // Read the light levels
   if (!apds.readAmbientLight(ambient_light)) {
@@ -142,23 +150,21 @@ void loop() {
 
   Serial.println(temperature);
   Serial.println(humidity);
-  Serial.println(motion);
+  //Serial.println(motion);
   Serial.println(ambient_light);
 
   delay(1000);
 
-  // Send an HTTP POST request every 5 seconds
-  if ((millis() - lastTime) > timerDelay) {
+  // Send an HTTP POST request every 5 seconds for temp and humidity
+  if ((millis() - lastTime1) > timerDelay1) {
     if(WiFi.status() == WL_CONNECTED){
       WiFiClient client;
       HTTPClient http;
       // Domain name or IP address with port
-      http.begin(client, serverName);
+      http.begin(client, serverName1);
       http.addHeader("Content-Type", "application/json");
-      String jsonPayload = "{\"Temperature\":\"" + String(temperature) + 
-                    "\", \"Humidity\":\"" + String(humidity) + 
-                    "\", \"Motion\":\"" + String(motion) + 
-                    "\", \"Light\":\"" + String(ambient_light) + "\"}";
+      String jsonPayload = "{\"Temperature\": \"" + String(temperature) + 
+                    "\", \"Humidity\": \"" + String(humidity) + "\"}";
       int httpResponseCode = http.POST(jsonPayload);
       Serial.print("HTTP Response code: ");
       Serial.println(httpResponseCode);
@@ -169,6 +175,31 @@ void loop() {
     else {
       Serial.println("WiFi Disconnected");
     }
-    lastTime = millis();
+    lastTime1 = millis();
+  }
+
+  // Send an HTTP POST request every 6 seconds for light and presence
+  if ((millis() - lastTime2) > timerDelay2) {
+    if(WiFi.status() == WL_CONNECTED){
+      WiFiClient client;
+      HTTPClient http;
+      // Domain name or IP address with port
+      http.begin(client, serverName2);
+      http.addHeader("Content-Type", "application/json");
+      String jsonPayload = "{\"Temperature\": \"" + String(temperature) + 
+                    "\", \"Humidity\": \"" + String(humidity) + 
+                    "\", \"Brightness\": \"" + String(ambient_light) + "\"}";
+
+      int httpResponseCode = http.POST(jsonPayload);
+      Serial.print("HTTP Response code: ");
+      Serial.println(httpResponseCode);
+      String response = http.getString();
+      Serial.println("Response: " + response);
+      http.end();
+    }
+    else {
+      Serial.println("WiFi Disconnected");
+    }
+    lastTime2 = millis();
   }
 }
