@@ -13,38 +13,18 @@ int previousDoorState = LOW; // Track previous state to detect changes
 // true is arm, false is disarm
 bool alarm_status = false;
 
+const char* ssid = "ESP32_Access_Point";
+const char* password = "password123";
+
 // Web server running on port 80
 WebServer server(80);
 
-// Define server IP and port for notification
-//const char* serverName = "http://192.168.33.223:8080/door_open"; // Change IP to your Flask server
+//Define server IP and port for notification
+const char* serverName = "http://192.168.4.30:80/setStatus"; //ESP32_cam details
 
 StaticJsonDocument<1024> jsonDocument;
 
 char buffer[1024];
-
-/*
-void handlePost() {
-  if (server.hasArg("plain") == false) {
-    server.send(400, "text/plain", "Bad Request - No Data");
-    return;
-  }
-
-  String body = server.arg("plain");
-
-  // Check if received data is "1" or "0" and set alarm_status accordingly
-  if (body == "1") {
-    alarm_status = true;
-    server.send(200, "text/plain", "Alarm armed");
-  } else if (body == "0") {
-    alarm_status = false;
-    server.send(200, "text/plain", "Alarm disarmed");
-  } else {
-    // Invalid data
-    server.send(400, "text/plain", "Bad Request - Invalid Data");
-  }
-}
-*/
 
 void handleControl() {
   // Print a message to the Serial Monitor
@@ -93,7 +73,6 @@ void getValues() {
 
 void setupApi() {
   server.on("/getValues", getValues);
-  //server.on("/setStatus", HTTP_POST, handleControl);
   server.on("/setStatus", handleControl);
  
   // start server
@@ -102,7 +81,6 @@ void setupApi() {
 
 // Set your Static IP address
 IPAddress local_IP(192, 168, 4, 10);
-// Set your Gateway IP address
 IPAddress gateway(192, 168, 4, 1);
 IPAddress subnet(255, 255, 255, 0);
 
@@ -118,10 +96,6 @@ void setup() {
   if (!WiFi.config(local_IP, gateway, subnet)) {
   Serial.println("STA Failed to configure");
   }
-
-  const char* ssid = "ESP32_Access_Point";
-  const char* password = "password123";
-
 
   WiFi.begin(ssid, password);
 
@@ -139,7 +113,8 @@ void sendDoorOpenNotification() {
     HTTPClient http;
     http.begin(serverName);
     http.addHeader("Content-Type", "text/plain"); // Set header to plain text
-    int httpResponseCode = http.POST("Door opened"); // Send POST request with "Door opened" message
+    int httpResponseCode = http.POST(doorState ? "1" : "0");
+ // Send POST request with "Door opened" message
 
     if (httpResponseCode > 0) {
       Serial.print("HTTP Response code: ");
@@ -164,12 +139,13 @@ void loop() {
     Serial.println("The door is open, turns on Piezo Buzzer");
     alarm_status = 1;
     digitalWrite(buzzer, LOW);
-    sendDoorOpenNotification(); // Send notification when door opens
   }
 
   if (!alarm_status) {
       digitalWrite(buzzer, HIGH); //Stop the sound
   }
+
+  sendDoorOpenNotification(); // Send notification when door opens
 
   Serial.print("Door state: ");
   Serial.println(doorState);
@@ -177,4 +153,6 @@ void loop() {
   Serial.println(alarm_status);
 
   previousDoorState = doorState; // Update previous state
+
+  
 }

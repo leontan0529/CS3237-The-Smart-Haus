@@ -6,8 +6,6 @@
 #include "soc/rtc_cntl_reg.h"
 #include "esp_camera.h"
 
-//#define INPUT_PIN 2
-
 const char* ssid = "ESP32_Access_Point";
 const char* password = "password123";
 
@@ -18,6 +16,7 @@ String serverPath = "/upload";
 const int serverPort = 5000;
 
 bool camera_status = 0;
+bool photo_taken = 0;
 
 WiFiClient client;
 
@@ -52,6 +51,46 @@ WebServer server(80);
 const int timerInterval = 30000;    // time between each HTTP POST image
 unsigned long previousMillis = 0;   // last time image was sent
 
+const char index_html[] PROGMEM = R"rawliteral(
+<!DOCTYPE HTML><html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body { text-align:center; }
+    .vert { margin-bottom: 10%; }
+    .hori{ margin-bottom: 0%; }
+  </style>
+</head>
+<body>
+  <div id="container">
+    <h2>ESP32-CAM Last Photo</h2>
+    <p>It might take more than 5 seconds to capture a photo.</p>
+    <p>
+      <button onclick="rotatePhoto();">ROTATE</button>
+      <button onclick="capturePhoto()">CAPTURE PHOTO</button>
+      <button onclick="location.reload();">REFRESH PAGE</button>
+    </p>
+  </div>
+  <div><img src="saved-photo" id="photo" width="70%"></div>
+</body>
+<script>
+  var deg = 0;
+  function capturePhoto() {
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', "/capture", true);
+    xhr.send();
+  }
+  function rotatePhoto() {
+    var img = document.getElementById("photo");
+    deg += 90;
+    if(isOdd(deg/90)){ document.getElementById("container").className = "vert"; }
+    else{ document.getElementById("container").className = "hori"; }
+    img.style.transform = "rotate(" + deg + "deg)";
+  }
+  function isOdd(n) { return Math.abs(n % 2) == 1; }
+</script>
+</html>)rawliteral";
+
 void handlePost() {
   if (server.hasArg("plain") == false) {
     server.send(400, "text/plain", "Bad Request - No Data");
@@ -80,101 +119,11 @@ void setupApi() {
   server.begin();
 }
 
-void setup() {
-
-  //pinMode(INPUT_PIN, INPUT);
-
-  WRITE_PERI_REG(RTC_CNTL_BROWN_OUT_REG, 0); 
-  Serial.begin(9600);
-
-  WiFi.mode(WIFI_STA);
-
-  // Configures static IP address
-  if (!WiFi.config(local_IP, gateway, subnet)) {
-  Serial.println("STA Failed to configure");
-  }
-
-
-  Serial.println();
-  Serial.print("Connecting to ");
-  Serial.println(ssid);
-  WiFi.begin(ssid, password);  
-  while (WiFi.status() != WL_CONNECTED) {
-    Serial.print(".");
-    delay(500);
-  }
-  Serial.println();
-  Serial.print("ESP32-CAM IP Address: ");
-  Serial.println(WiFi.localIP());
-
-  camera_config_t config;
-  config.ledc_channel = LEDC_CHANNEL_0;
-  config.ledc_timer = LEDC_TIMER_0;
-  config.pin_d0 = Y2_GPIO_NUM;
-  config.pin_d1 = Y3_GPIO_NUM;
-  config.pin_d2 = Y4_GPIO_NUM;
-  config.pin_d3 = Y5_GPIO_NUM;
-  config.pin_d4 = Y6_GPIO_NUM;
-  config.pin_d5 = Y7_GPIO_NUM;
-  config.pin_d6 = Y8_GPIO_NUM;
-  config.pin_d7 = Y9_GPIO_NUM;
-  config.pin_xclk = XCLK_GPIO_NUM;
-  config.pin_pclk = PCLK_GPIO_NUM;
-  config.pin_vsync = VSYNC_GPIO_NUM;
-  config.pin_href = HREF_GPIO_NUM;
-  config.pin_sscb_sda = SIOD_GPIO_NUM;
-  config.pin_sscb_scl = SIOC_GPIO_NUM;
-  config.pin_pwdn = PWDN_GPIO_NUM;
-  config.pin_reset = RESET_GPIO_NUM;
-  config.xclk_freq_hz = 20000000;
-  config.pixel_format = PIXFORMAT_JPEG;
-
-  // init with high specs to pre-allocate larger buffers
-  if(psramFound()){
-    config.frame_size = FRAMESIZE_SVGA;
-    config.jpeg_quality = 10;  //0-63 lower number means higher quality
-    config.fb_count = 2;
-  } else {
-    config.frame_size = FRAMESIZE_CIF;
-    config.jpeg_quality = 12;  //0-63 lower number means higher quality
-    config.fb_count = 1;
-  }
-  
-  // camera init
-  esp_err_t err = esp_camera_init(&config);
-  if (err != ESP_OK) {
-    Serial.printf("Camera init failed with error 0x%x", err);
-    delay(1000);
-    ESP.restart();
-  }
-
-  setupApi();
-
-  sendPhoto(); 
-}
-
-void loop() {
-  server.handleClient();
-
-  //int inputState = digitalRead(INPUT_PIN);
-  //Serial.println(inputState);
-
-  //unsigned long currentMillis = millis();
-  if (camera_status == 1) {
-    sendPhoto();
-    //previousMillis = currentMillis;
-    camera_status = 0;
-  }
-
-  // Wait for a second before reading again
-  delay(1000);
-}
-
 String sendPhoto() {
   String getAll;
   String getBody;
 
-  camera_fb_t * fb = NULL;
+  camera_fb_t *fb = NULL;
   fb = esp_camera_fb_get();
   if(!fb) {
     Serial.println("Camera capture failed");
@@ -186,8 +135,8 @@ String sendPhoto() {
 
   if (client.connect(serverName.c_str(), serverPort)) {
     Serial.println("Connection successful!");    
-    String head = "--RandomNerdTutorials\r\nContent-Disposition: form-data; name=\"imageFile\"; filename=\"esp32-cam.jpg\"\r\nContent-Type: image/jpeg\r\n\r\n";
-    String tail = "\r\n--RandomNerdTutorials--\r\n";
+    String head = "--SmartHaus\r\nContent-Disposition: form-data; name=\"imageFile\"; filename=\"esp32-cam.jpg\"\r\nContent-Type: image/jpeg\r\n\r\n";
+    String tail = "\r\n--SmartHaus--\r\n";
 
     uint32_t imageLen = fb->len;
     uint32_t extraLen = head.length() + tail.length();
@@ -196,7 +145,7 @@ String sendPhoto() {
     client.println("POST " + serverPath + " HTTP/1.1");
     client.println("Host: " + serverName);
     client.println("Content-Length: " + String(totalLen));
-    client.println("Content-Type: multipart/form-data; boundary=RandomNerdTutorials");
+    client.println("Content-Type: multipart/form-data; boundary=SmartHaus");
     client.println();
     client.print(head);
   
@@ -244,4 +193,99 @@ String sendPhoto() {
     Serial.println(getBody);
   }
   return getBody;
+}
+
+void setup() {
+
+  WRITE_PERI_REG(RTC_CNTL_BROWN_OUT_REG, 0); 
+  Serial.begin(9600);
+
+  WiFi.mode(WIFI_STA);
+
+  // Configures static IP address
+  if (!WiFi.config(local_IP, gateway, subnet)) {
+  Serial.println("STA Failed to configure");
+  }
+
+  Serial.println();
+  Serial.print("Connecting to ");
+  Serial.println(ssid);
+  WiFi.begin(ssid, password);  
+  while (WiFi.status() != WL_CONNECTED) {
+    Serial.print(".");
+    delay(500);
+  }
+  Serial.println();
+  Serial.print("ESP32-CAM IP Address: ");
+  Serial.println(WiFi.localIP());
+
+  camera_config_t config;
+  config.ledc_channel = LEDC_CHANNEL_0;
+  config.ledc_timer = LEDC_TIMER_0;
+  config.pin_d0 = Y2_GPIO_NUM;
+  config.pin_d1 = Y3_GPIO_NUM;
+  config.pin_d2 = Y4_GPIO_NUM;
+  config.pin_d3 = Y5_GPIO_NUM;
+  config.pin_d4 = Y6_GPIO_NUM;
+  config.pin_d5 = Y7_GPIO_NUM;
+  config.pin_d6 = Y8_GPIO_NUM;
+  config.pin_d7 = Y9_GPIO_NUM;
+  config.pin_xclk = XCLK_GPIO_NUM;
+  config.pin_pclk = PCLK_GPIO_NUM;
+  config.pin_vsync = VSYNC_GPIO_NUM;
+  config.pin_href = HREF_GPIO_NUM;
+  config.pin_sscb_sda = SIOD_GPIO_NUM;
+  config.pin_sscb_scl = SIOC_GPIO_NUM;
+  config.pin_pwdn = PWDN_GPIO_NUM;
+  config.pin_reset = RESET_GPIO_NUM;
+  config.xclk_freq_hz = 20000000;
+  config.pixel_format = PIXFORMAT_JPEG;
+
+  // init with high specs to pre-allocate larger buffers
+  if(psramFound()){
+    config.frame_size = FRAMESIZE_SVGA;
+    config.jpeg_quality = 10;  //0-63 lower number means higher quality
+    config.fb_count = 1;
+  } else {
+    config.frame_size = FRAMESIZE_CIF;
+    config.jpeg_quality = 12;  //0-63 lower number means higher quality
+    config.fb_count = 1;
+  }
+  
+  // camera init
+  esp_err_t err = esp_camera_init(&config);
+  if (err != ESP_OK) {
+    Serial.printf("Camera init failed with error 0x%x", err);
+    delay(1000);
+    ESP.restart();
+  }
+
+  setupApi();
+  //sendPhoto(); 
+}
+
+void loop() {
+  server.handleClient();
+
+  /*
+  //unsigned long currentMillis = millis();
+  if (camera_status == 1) {
+    sendPhoto();
+    //previousMillis = currentMillis;
+    camera_status = 0;
+  }
+  */
+
+  // Check if there's a transition from 0 to 1
+  // Trigger sendPhoto() only if the door just opened (camera_status goes from 0 to 1)
+  if (camera_status == 1 && photo_taken == 0) {
+    sendPhoto(); // Capture and send a photo when door opens
+    photo_taken = 1;
+    delay(50);
+  } else if (camera_status == 0) {
+    photo_taken = 0;
+  }
+
+  // Wait for a second before reading again
+  delay(1000);
 }
