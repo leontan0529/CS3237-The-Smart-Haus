@@ -24,10 +24,10 @@ int motion;
 SparkFun_APDS9960 apds = SparkFun_APDS9960();
 uint16_t ambient_light = 0;
 
-const char* ssid = "MitsubishiAttrage";
-const char* password = "Toyota Vios";
+const char* ssid = "ESP32_Access_Point";
+const char* password = "password123";
 
-const char* serverName = "http://192.168.101.208:8080/esp32-th";
+const char* serverName = "http://192.168.4.2:8080/mb";
 
 // Timer set to 5 seconds (5000)
 unsigned long timerDelay = 5000;
@@ -42,10 +42,23 @@ StaticJsonDocument<1024> jsonDocument;
 
 char buffer[1024];
 
+// Set your Static IP address
+IPAddress local_IP(192, 168, 4, 20);
+// Set your Gateway IP address
+IPAddress gateway(192, 168, 4, 1);
+IPAddress subnet(255, 255, 255, 0);
+
 void setup() {
 
-  Serial.begin(115200);
+  Serial.begin(9600);
   delay(1500); 
+  
+  WiFi.mode(WIFI_STA);
+
+  // Configures static IP address
+  if (!WiFi.config(local_IP, gateway, subnet)) {
+  Serial.println("STA Failed to configure");
+  }
 
   WiFi.begin(ssid, password);
   Serial.println("Connecting");
@@ -97,17 +110,22 @@ void loop() {
 
   //DHT11
   delay(delayMS);
-  sensors_event_t event;
-  dht.temperature().getEvent(&event);
-  if (isnan(event.temperature)) {
+  sensors_event_t tempEvent;
+  sensors_event_t humidityEvent;
+  
+  dht.temperature().getEvent(&tempEvent);
+  if (isnan(tempEvent.temperature)) {
     Serial.println(F("Error reading temperature!"));
+  } else {
+    temperature = tempEvent.temperature;
   }
-  dht.humidity().getEvent(&event);
-  if (isnan(event.relative_humidity)) {
+  
+  dht.humidity().getEvent(&humidityEvent);
+  if (isnan(humidityEvent.relative_humidity)) {
     Serial.println(F("Error reading humidity!"));
+  } else {
+    humidity = humidityEvent.relative_humidity;
   }
-  temperature = event.temperature;
-  humidity = event.relative_humidity;
 
   //Presence Detection
   int sensorValue = digitalRead(PIR_SENSOR_PIN);
@@ -137,7 +155,10 @@ void loop() {
       // Domain name or IP address with port
       http.begin(client, serverName);
       http.addHeader("Content-Type", "application/json");
-      String jsonPayload = "{\"Temperature\":\"" + String(temperature) + "\", \"Humidity\":\"" + String(humidity) + "\"}";
+      String jsonPayload = "{\"Temperature\":\"" + String(temperature) + 
+                    "\", \"Humidity\":\"" + String(humidity) + 
+                    "\", \"Motion\":\"" + String(motion) + 
+                    "\", \"Light\":\"" + String(ambient_light) + "\"}";
       int httpResponseCode = http.POST(jsonPayload);
       Serial.print("HTTP Response code: ");
       Serial.println(httpResponseCode);
