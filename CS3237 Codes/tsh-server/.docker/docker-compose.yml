@@ -58,13 +58,13 @@ services:
       - GF_DATABASE_USER=admin
       - GF_DATABASE_PASSWORD=admin
       - GF_DATABASE_SSL_MODE=disable
-      - GF_INSTALL_PLUGINS=speakyourcode-button-panel
+      #- GF_INSTALL_PLUGINS=speakyourcode-button-panel
       - GF_PANELS_DISABLE_SANITIZE_HTML=true
     networks:
       - tsh_net
     extra_hosts:
       - "host.docker.internal:host-gateway"
-      - "other-device:192.168.4.2"
+      - "other-device:192.168.4.10" # change depending on IP of Cam
 
 volumes:
   postgres_data:
