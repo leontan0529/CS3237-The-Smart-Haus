@@ -6,6 +6,8 @@
 #include "soc/rtc_cntl_reg.h"
 #include "esp_camera.h"
 
+#define LED_FLASH_PIN 4  // GPIO pin for the LED (on some ESP32-CAMs, it's GPIO 4)
+
 const char* ssid = "ESP32_Access_Point";
 const char* password = "password123";
 
@@ -123,6 +125,35 @@ String sendPhoto() {
   String getAll;
   String getBody;
 
+  // Turn on the flash LED
+  digitalWrite(LED_FLASH_PIN, HIGH);
+  delay(100);  // Brief delay to allow the LED to brighten
+
+  // Capture the first image
+  camera_fb_t * fb = esp_camera_fb_get();
+  digitalWrite(LED_FLASH_PIN, LOW);  // Turn off the LED flash immediately after capture
+
+  if (!fb) {
+    Serial.println("First camera capture failed");
+  } else {
+    // Discard the first image
+    esp_camera_fb_return(fb);  // Return the frame buffer memory
+    Serial.println("First image discarded");
+  }
+
+  // Now capture the second image
+  fb = esp_camera_fb_get();
+
+  if (!fb) {
+    Serial.println("Second camera capture failed");
+  } else {
+    // Process the second image (send it, save it, etc.)
+    Serial.println("Second image captured");
+
+    // Process the second image here (send to server, save, etc.)
+    // For example, send it over HTTP or save it to SD card
+  }
+  /*
   camera_fb_t *fb = NULL;
   fb = esp_camera_fb_get();
   if(!fb) {
@@ -130,6 +161,7 @@ String sendPhoto() {
     delay(1000);
     ESP.restart();
   }
+  */
   
   Serial.println("Connecting to server: " + serverName);
 
@@ -200,6 +232,9 @@ void setup() {
   WRITE_PERI_REG(RTC_CNTL_BROWN_OUT_REG, 0); 
   Serial.begin(9600);
 
+  pinMode(LED_FLASH_PIN, OUTPUT);
+  digitalWrite(LED_FLASH_PIN, LOW);  // Make sure the LED is initially off
+
   WiFi.mode(WIFI_STA);
 
   // Configures static IP address
@@ -244,11 +279,11 @@ void setup() {
   // init with high specs to pre-allocate larger buffers
   if(psramFound()){
     config.frame_size = FRAMESIZE_SVGA;
-    config.jpeg_quality = 10;  //0-63 lower number means higher quality
+    config.jpeg_quality = 30;  //0-63 lower number means higher quality
     config.fb_count = 1;
   } else {
     config.frame_size = FRAMESIZE_CIF;
-    config.jpeg_quality = 12;  //0-63 lower number means higher quality
+    config.jpeg_quality = 30;  //0-63 lower number means higher quality
     config.fb_count = 1;
   }
   
