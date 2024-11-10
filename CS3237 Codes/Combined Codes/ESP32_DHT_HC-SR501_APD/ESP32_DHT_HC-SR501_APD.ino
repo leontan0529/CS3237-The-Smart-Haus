@@ -155,30 +155,7 @@ void loop() {
 
   delay(1000);
 
-  // Send an HTTP POST request every 5 seconds for temp and humidity
-  if ((millis() - lastTime1) > timerDelay1) {
-    if(WiFi.status() == WL_CONNECTED){
-      WiFiClient client;
-      HTTPClient http;
-      // Domain name or IP address with port
-      http.begin(client, serverName1);
-      http.addHeader("Content-Type", "application/json");
-      String jsonPayload = "{\"Temperature\": \"" + String(temperature) + 
-                    "\", \"Humidity\": \"" + String(humidity) + "\"}";
-      int httpResponseCode = http.POST(jsonPayload);
-      Serial.print("HTTP Response code: ");
-      Serial.println(httpResponseCode);
-      String response = http.getString();
-      Serial.println("Response: " + response);
-      http.end();
-    }
-    else {
-      Serial.println("WiFi Disconnected");
-    }
-    lastTime1 = millis();
-  }
-
-  // Send an HTTP POST request every 6 seconds for light and presence
+  // Send an HTTP POST request to ESP32_accesspoint with temperature, humidity and light
   if ((millis() - lastTime2) > timerDelay2) {
     if(WiFi.status() == WL_CONNECTED){
       WiFiClient client;
@@ -202,4 +179,29 @@ void loop() {
     }
     lastTime2 = millis();
   }
+
+  /*
+  // Send an HTTP POST request every 5 seconds for temp and humidity
+  if ((millis() - lastTime1) > timerDelay1) {
+    if(WiFi.status() == WL_CONNECTED){
+      WiFiClient client;
+      HTTPClient http;
+      // Domain name or IP address with port
+      http.begin(client, serverName1);
+      http.addHeader("Content-Type", "application/json");
+      String jsonPayload = "{\"Temperature\": \"" + String(temperature) + 
+                    "\", \"Humidity\": \"" + String(humidity) + "\"}";
+      int httpResponseCode = http.POST(jsonPayload);
+      Serial.print("HTTP Response code: ");
+      Serial.println(httpResponseCode);
+      String response = http.getString();
+      Serial.println("Response: " + response);
+      http.end();
+    }
+    else {
+      Serial.println("WiFi Disconnected");
+    }
+    lastTime1 = millis();
+  }
+  */
 }
