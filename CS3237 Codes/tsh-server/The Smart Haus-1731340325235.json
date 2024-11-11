@@ -452,31 +452,6 @@
     },
     {
       "datasource": {
-        "type": "grafana-testdata-datasource",
-        "uid": "fdztd0e4qwow0c"
-      },
-      "gridPos": {
-        "h": 11,
-        "w": 24,
-        "x": 0,
-        "y": 17
-      },
-      "id": 20,
-      "options": {
-        "code": {
-          "language": "plaintext",
-          "showLineNumbers": false,
-          "showMiniMap": false
-        },
-        "content": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta charset=\"UTF-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n    <title>Auto-refreshing Iframe</title>\n    <script>\n        // Function to refresh the iframe content every 5 seconds\n        function refreshIframe() {\n            const iframe = document.getElementById(\"myIframe\");\n            // Get the current iframe src\n            const currentSrc = iframe.src;\n            // Update the src by appending a query parameter to force reload\n            iframe.src = \"\";  // Empty the iframe to stop it temporarily\n            iframe.src = currentSrc + \"?timestamp=\" + new Date().getTime();  // Re-add the URL with a new timestamp to force refresh\n        }\n\n        setInterval(refreshIframe, 5000);  // Refresh every 5 seconds\n    </script>\n</head>\n<body>\n    <iframe id=\"myIframe\" src=\"http://localhost:9092/data/ml_brightness/ml_brightness.txt\" width=\"1300\" height=\"350\">\n        Loading content...\n    </iframe>\n</body>\n</html>",
-        "mode": "html"
-      },
-      "pluginVersion": "11.2.0",
-      "title": "HausAI",
-      "type": "text"
-    },
-    {
-      "datasource": {
         "type": "grafana-postgresql-datasource",
         "uid": "my_unique_uid"
       },
@@ -540,7 +515,7 @@
         "h": 8,
         "w": 24,
         "x": 0,
-        "y": 28
+        "y": 17
       },
       "id": 14,
       "options": {
@@ -564,7 +539,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 36
+        "y": 25
       },
       "id": 9,
       "panels": [],
@@ -646,7 +621,7 @@
         "h": 10,
         "w": 24,
         "x": 0,
-        "y": 37
+        "y": 26
       },
       "id": 15,
       "options": {
@@ -778,7 +753,7 @@
         "h": 10,
         "w": 24,
         "x": 0,
-        "y": 47
+        "y": 36
       },
       "id": 16,
       "options": {
@@ -910,7 +885,7 @@
         "h": 10,
         "w": 24,
         "x": 0,
-        "y": 57
+        "y": 46
       },
       "id": 17,
       "options": {
@@ -1041,7 +1016,7 @@
         "h": 10,
         "w": 24,
         "x": 0,
-        "y": 67
+        "y": 56
       },
       "id": 19,
       "options": {
@@ -1104,7 +1079,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 77
+        "y": 66
       },
       "id": 5,
       "panels": [],
@@ -1120,7 +1095,7 @@
         "h": 14,
         "w": 12,
         "x": 0,
-        "y": 78
+        "y": 67
       },
       "id": 12,
       "options": {
@@ -1138,6 +1113,31 @@
     },
     {
       "datasource": {
+        "type": "grafana-testdata-datasource",
+        "uid": "fdztd0e4qwow0c"
+      },
+      "gridPos": {
+        "h": 14,
+        "w": 12,
+        "x": 12,
+        "y": 67
+      },
+      "id": 20,
+      "options": {
+        "code": {
+          "language": "typescript",
+          "showLineNumbers": false,
+          "showMiniMap": false
+        },
+        "content": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta charset=\"UTF-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n    <title>Auto-refreshing Text</title>\n    <script>\n        // Function to fetch and display the text every 5 seconds\n        function refreshText() {\n            const url = \"./data/ml_brightness/ml_brightness.txt?timestamp=\" + new Date().getTime();\n            console.log(\"Fetching data from:\", url); // Debugging log\n            fetch(url)\n                .then(response => {\n                    if (!response.ok) {\n                        throw new Error(\"Network response was not ok\");\n                    }\n                    return response.text();\n                })\n                .then(text => {\n                    document.getElementById(\"text-display\").innerText = text || \"No content available\";\n                })\n                .catch(error => console.error(\"Error fetching text:\", error));\n        }\n\n        setInterval(refreshText, 60000); // Refresh every 5 seconds\n    </script>\n</head>\n<body>\n    <div id=\"text-display\" style=\"font-size: 16px; padding: 20px; border: 1px solid #ccc; width: 600px; height: 400px;\">\n        Loading text...\n    </div>\n</body>\n</html>",
+        "mode": "code"
+      },
+      "pluginVersion": "11.2.0",
+      "title": "DoorCam",
+      "type": "text"
+    },
+    {
+      "datasource": {
         "type": "grafana-postgresql-datasource",
         "uid": "my_unique_uid"
       },
@@ -1146,7 +1146,7 @@
         "h": 3,
         "w": 4,
         "x": 12,
-        "y": 78
+        "y": 81
       },
       "id": 13,
       "options": {
@@ -1160,31 +1160,6 @@
       },
       "pluginVersion": "11.2.0",
       "title": "Disarm Alarm",
-      "type": "text"
-    },
-    {
-      "datasource": {
-        "type": "grafana-testdata-datasource",
-        "uid": "fdztd0e4qwow0c"
-      },
-      "gridPos": {
-        "h": 11,
-        "w": 11,
-        "x": 12,
-        "y": 81
-      },
-      "id": 21,
-      "options": {
-        "code": {
-          "language": "plaintext",
-          "showLineNumbers": false,
-          "showMiniMap": false
-        },
-        "content": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta charset=\"UTF-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n    <title>Auto-refreshing Iframe</title>\n    <script>\n        // Function to refresh the iframe content every 5 seconds\n        function refreshIframe() {\n            const iframe = document.getElementById(\"myIframe\");\n            // Get the current iframe src\n            const currentSrc = iframe.src;\n            // Update the src by appending a query parameter to force reload\n            iframe.src = \"\";  // Empty the iframe to stop it temporarily\n            iframe.src = currentSrc + \"?timestamp=\" + new Date().getTime();  // Re-add the URL with a new timestamp to force refresh\n        }\n\n        setInterval(refreshIframe, 5000);  // Refresh every 5 seconds\n    </script>\n</head>\n<body>\n    <iframe id=\"myIframe\" src=\"http://localhost:9092/data/ml_image/ml_image.txt\" width=\"600\" height=\"350\">\n        Loading content...\n    </iframe>\n</body>\n</html>",
-        "mode": "html"
-      },
-      "pluginVersion": "11.2.0",
-      "title": "HausAI",
       "type": "text"
     }
   ],
@@ -1202,6 +1177,6 @@
   "timezone": "browser",
   "title": "The Smart Haus",
   "uid": "cdzte3nlkywaoa",
-  "version": 2,
+  "version": 1,
   "weekStart": ""
 }

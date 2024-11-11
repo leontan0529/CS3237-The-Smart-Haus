@@ -40,7 +40,8 @@ services:
     restart: always
     volumes:
       - ./image_handler/images:/etc/nginx/html/data/images
-      - ./image_handler/ml_brightness:/etc/nginx/html/data/ml_brightness
+      - ./machine_learning/ml_brightness:/etc/nginx/html/data/ml_brightness
+      - ./machine_learning/ml_image:/etc/nginx/html/data/ml_image
     ports:
       - '9092:80'
     environment:
