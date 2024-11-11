@@ -48,7 +48,7 @@ func initServer() (*http.Server, error) {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/esp32-th", api.thEsp32)
 	mux.HandleFunc("/esp32-mb", api.mbEsp32)
-	mux.HandleFunc("/esp32-images", api.imagesEsp32)
+	mux.HandleFunc("/esp32-door", api.doorEsp32)
 
 	subServer := &http.Server{
 		Addr:              ":8080",

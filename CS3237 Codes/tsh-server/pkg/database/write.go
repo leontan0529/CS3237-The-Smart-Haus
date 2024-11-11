@@ -15,8 +15,8 @@ func InsertMbData(motion, brightness int64) error {
 }
 
 // Function to insert image link into the image_data table
-func InsertImageData(url string) error {
-	query := `INSERT INTO image_data (image_link) VALUES ($1)`
-	_, err := db.Exec(query, url)
+func InsertDoorData(intrusion int64) error {
+	query := `INSERT INTO intruusion (intrusion) VALUES ($1)`
+	_, err := db.Exec(query, intrusion)
 	return err
 }

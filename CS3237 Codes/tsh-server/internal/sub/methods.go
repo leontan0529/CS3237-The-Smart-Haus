@@ -154,7 +154,73 @@ func (s *subAPI) mbEsp32(w http.ResponseWriter, r *http.Request) {
 }
 
 // TODO: to determine necessity of this
-func (s *subAPI) imagesEsp32(w http.ResponseWriter, r *http.Request) {
-	// Add your liveness check logic here
+func (s *subAPI) doorEsp32(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		logging.Log(logging.LogRequest{
+			ServiceName: logging.SUB,
+			Endpoint:    logging.ESP32DOOR,
+			Level:       "ERROR",
+			Message:     fmt.Sprintf("Received an invalid HTTP Request: %v", r.Method),
+		})
+		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
+		return
+	}
+
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		logging.Log(logging.LogRequest{
+			ServiceName: logging.SUB,
+			Endpoint:    logging.ESP32DOOR,
+			Level:       "ERROR",
+			Message:     fmt.Sprintf("Unable to read POST Request Body: %v", err),
+		})
+		http.Error(w, "Unable to read request body", http.StatusBadRequest)
+		return
+	}
+	defer r.Body.Close()
+
+	var data Esp32DoorData
+	err = json.Unmarshal(body, &data)
+	if err != nil {
+		logging.Log(logging.LogRequest{
+			ServiceName: logging.SUB,
+			Endpoint:    logging.ESP32DOOR,
+			Level:       "ERROR",
+			Message:     fmt.Sprintf("Invalid JSON format: %v", err),
+		})
+		http.Error(w, "Invalid JSON format", http.StatusBadRequest)
+		return
+	}
+
+	// Log the received data for debugging purposes
+	logging.Log(logging.LogRequest{
+		ServiceName: logging.SUB,
+		Endpoint:    logging.ESP32DOOR,
+		Level:       "INFO",
+		Message:     fmt.Sprintf("From %+v Received Data : %+v\n", r.RemoteAddr, data),
+	})
+
+	// Insert data into the database
+	err = database.InsertDoorData(data.Intrusion)
+	if err != nil {
+		logging.Log(logging.LogRequest{
+			ServiceName: logging.SUB,
+			Endpoint:    logging.ESP32DOOR,
+			Level:       "ERROR",
+			Message:     fmt.Sprintf("Error Writing to Database: %+v\n", err),
+		})
+	}
+
+	// You can add more processing logic here if needed
 	w.WriteHeader(http.StatusOK)
+	_, err = w.Write([]byte("Data received successfully"))
+	if err != nil {
+		logging.Log(logging.LogRequest{
+			ServiceName: logging.SUB,
+			Endpoint:    logging.ESP32DOOR,
+			Level:       "ERROR",
+			Message:     fmt.Sprintf("Error Responding to Request: %+v\n", err),
+		})
+		return
+	}
 }
