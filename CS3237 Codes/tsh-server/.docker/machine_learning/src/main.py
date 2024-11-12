@@ -5,7 +5,7 @@ import os
 
 # Path to update HausAI's CNN
 CNN_OUTPUT_PATH = "./CS3237 Codes/tsh-server/.docker/machine_learning/ml_image/ml_image.txt"
-CNN_OUTPUT = "Occupant, Jon, is recognised. Not an intruder"
+CNN_OUTPUT = "Personnel is not recognised. INTRUDER ALERT!"
 
 # Path to update HausAI's Regression
 REGRESSION_OUTPUT_PATH = "./CS3237 Codes/tsh-server/.docker/machine_learning/ml_brightness/ml_brightness.txt"

@@ -1,4 +1,4 @@
-2024-11-12 12:14:54
+2024-11-12 14:02:26
 Welcome back home, Sir.
 I am HausAI, your home assistant. Here is a report for you:
-Occupant, Jon, is recognised. Not an intruder
+Personnel is not recognised. INTRUDER ALERT!
