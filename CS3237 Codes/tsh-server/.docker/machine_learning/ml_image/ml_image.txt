@@ -1,1 +1,4 @@
-testing image
+2024-11-12 10:07:45
+Welcome back home, Sir.
+I am HausAI, your home assistant. Here is a report for you:
+Occupant, Jon, is recognised. Not an intruder
