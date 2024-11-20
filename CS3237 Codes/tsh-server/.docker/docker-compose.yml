@@ -1,0 +1,117 @@
+services:
+  tsh-server:
+    build:
+      context: ../
+      dockerfile: .docker/Dockerfile
+    container_name: tsh-server
+    ports:
+      - "8080:8080"
+      - "8081:8081"
+      - "9000:9000"
+    depends_on:
+      postgres:
+        condition: service_started
+    environment:
+      - DB_URL=postgresql://admin:admin@postgres:5432/tsh-backend?sslmode=disable
+      - TZ=UTC-8
+    networks:
+      - tsh_net
+
+  # Image_Handler/HTTP
+  image-post:
+    build:
+      context: ./image_handler/http
+    container_name: image-post
+    restart: always
+    volumes:
+      - ./image_handler/images:/images
+    ports:
+      - '9091:9091'
+    environment:
+      - TZ=UTC-8
+    networks:
+      - tsh_net
+
+  # Image_Handler/NGINX
+  image-nginx:
+    build:
+      context: ./image_handler/nginx
+    container_name: image-nginx
+    restart: always
+    volumes:
+      - ./image_handler/images:/etc/nginx/html/data/images
+      - ./machine_learning/ml_brightness:/etc/nginx/html/data/ml_brightness
+      - ./machine_learning/ml_image:/etc/nginx/html/data/ml_image
+    ports:
+      - '9092:80'
+    environment:
+      - TZ=UTC-8
+    networks:
+      - tsh_net
+
+  postgres:
+    image: postgres:14
+    container_name: postgres
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: tsh-backend
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5432:5432"
+    networks:
+      - tsh_net
+
+  grafana:
+    image: grafana/grafana
+    container_name: grafana
+    restart: always
+    entrypoint: >
+      /bin/sh -c "
+      cd /var/lib/grafana &&
+      mkdir -p dashboards &&
+      /run.sh"
+    ports:
+     - "3030:3000"
+    volumes:
+      - grafana-storage:/var/lib/grafana
+      - ./grafana/provisioning/:/etc/grafana/provisioning/
+      - ./grafana/provisioning/dashboards/:/var/lib/grafana/dashboards/
+    depends_on:
+      - postgres
+    environment:
+      - GF_AUTH_DEFAULT_HOME_DASHBOARD_PATH=/var/lib/grafana/dashboards/dashboard.json
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_DATABASE_TYPE=postgres
+      - GF_DATABASE_HOST=postgres:5432
+      - GF_DATABASE_NAME=tsh-backend
+      - GF_DATABASE_USER=admin
+      - GF_DATABASE_PASSWORD=admin
+      - GF_SMTP_ENABLED=true
+      - GF_SMTP_HOST=smtp.gmail.com:587
+      - GF_SMTP_USER=leontan0529@gmail.com
+      - GF_SMTP_PASSWORD=xysk potz ztnv gnhd
+      - GF_SMTP_FROM_ADDRESS=leontan052@gmail.com
+      - GF_SMTP_FROM_NAME=Grafana
+      - GF_SMTP_SKIP_VERIFY=true
+      - GF_DATABASE_SSL_MODE=disable
+      #- GF_INSTALL_PLUGINS=speakyourcode-button-panel
+      - GF_PANELS_DISABLE_SANITIZE_HTML=true
+      - TZ=UTC-8
+    networks:
+      - tsh_net
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+      - "other-device:192.168.4.10" # change depending on IP of Cam
+      - "other-device:192.168.115.40" # change depending on IP of Cam
+
+volumes:
+  postgres_data:
+  grafana-storage: {}
+
+networks:
+  tsh_net:
+    driver: bridge
