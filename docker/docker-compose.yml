@@ -22,3 +22,33 @@ volumes:
 
 networks:
   iot_net:
+
+ app:
+    build:
+      context: ./app  # Path to your application directory
+      dockerfile: Dockerfile
+    environment:
+      DATABASE_URL: postgres://admin:admin@postgres_db:5432/tsh-backend  # Connection string to the PostgreSQL container
+    depends_on:
+      - postgres_db  # Ensure the PostgreSQL service starts before the app
+    networks:
+      - sensor_network  # Connect app to the same network as Grafana
+
+  postgres_db:
+    image: postgres:14  # Use the desired version of PostgreSQL
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: tsh-backend  # Name of your database
+    ports:
+      - "5432:5432"  # Map port 5432 of the container to your host
+    volumes:
+      - postgres_data:/var/lib/postgresql/data  # Persist data across restarts
+    networks:
+      - sensor_network
+
+volumes:
+  postgres_data: {}  # Volume for PostgreSQL data
+
+networks:
+  sensor_network: {} # Define the network for communication between services
