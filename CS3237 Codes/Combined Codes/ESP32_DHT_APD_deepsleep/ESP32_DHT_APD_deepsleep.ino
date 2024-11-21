@@ -27,15 +27,9 @@ int motion;
 SparkFun_APDS9960 apds = SparkFun_APDS9960();
 uint16_t ambient_light = 0;
 
-/*
-const char* ssid = "ESP32_Access_Point";
-const char* password = "password123";
-*/
-
 const char* ssid = "MitsubishiAttrage";
 const char* password = "Toyota Vios";
 
-//const char* serverName1 = "http://192.168.4.2:8080/esp32-th";
 const char* serverName2 = "http://192.168.115.20:80/post-data";
 
 
@@ -61,14 +55,6 @@ IPAddress local_IP(192, 168, 115, 30);
 // Set your Gateway IP address
 IPAddress gateway(192, 168, 115, 159);
 IPAddress subnet(255, 255, 255, 0);
-
-/*
-// Set your Static IP address
-IPAddress local_IP(192, 168, 4, 20);
-// Set your Gateway IP address
-IPAddress gateway(192, 168, 4, 1);
-IPAddress subnet(255, 255, 255, 0);
-*/
 
 void setup() {
 

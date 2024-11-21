@@ -1,9 +1,0 @@
-ESP32_Buzzer_door-sensor
-
-door initially closed
-when door opened by intruder, alarm stays on
-alarm is switched off by HTTP post to change alarm_status
-
-esp32cam
-Photo is taken when camera status is changed to 1 via HTTP post
-Photo is shared via HTTP post to specified server

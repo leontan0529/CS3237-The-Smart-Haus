@@ -7,6 +7,9 @@
 
 StaticJsonDocument<1024> jsonDocument;
 
+// Buffer to store the received image data
+std::vector<uint8_t> imageBuffer;
+
 //Presence detection
 int motion;
 #define PIR_SENSOR_PIN 13
@@ -25,6 +28,7 @@ LiquidCrystal_I2C lcd(0x27, lcdColumns, lcdRows);
 
 const char* serverName1 = "http://192.168.4.2:8080/esp32-th";
 const char* serverName2 = "http://192.168.4.2:8080/esp32-mb";
+const char* serverName3 = "http://192.168.4.2:5000/upload";
 
 unsigned long timerDelay1 = 5000;
 unsigned long timerDelay2 = 6000;
@@ -46,6 +50,8 @@ unsigned long previousMillis = 0; // Stores the last time display was updated
 const long interval = 2000;       // Interval of 2 seconds
 bool showFirstSet = true;         // Boolean to toggle between display sets
 
+
+// Handler function for receiving data from esp32 with humidity, temp and brightness
 void handlePostRequest() {
   if (server.hasArg("plain")) {
     String body = server.arg("plain");
@@ -81,6 +87,40 @@ void handlePostRequest() {
   }
 }
 
+
+// To receive image data via POST from esp32-cam
+void handleImageUpload() {
+  if (server.uri() == "/upload" && server.method() == HTTP_POST) {
+    if (server.hasArg("plain")) {
+      Serial.println("Error: Expecting binary data, not plain text");
+      server.send(400, "application/json", "{\"status\":\"Error\"}");
+      return;
+    }
+
+    // Allocate buffer to hold incoming binary data
+    HTTPUpload& upload = server.upload();
+    
+    if (upload.status == UPLOAD_FILE_START) {
+      // Clear the image buffer when starting a new upload
+      imageBuffer.clear();
+      Serial.println("Starting image upload...");
+    } else if (upload.status == UPLOAD_FILE_WRITE) {
+      // Append received data to the buffer
+      imageBuffer.insert(imageBuffer.end(), upload.buf, upload.buf + upload.currentSize);
+      Serial.printf("Received %d bytes\n", upload.currentSize);
+    } else if (upload.status == UPLOAD_FILE_END) {
+      // Complete upload; the entire image is now in imageBuffer
+      Serial.printf("Upload completed, total size: %d bytes\n", imageBuffer.size());
+      
+      // Send success response
+      server.send(200, "application/json", "{\"status\":\"Success\"}");
+
+      // Process image data as needed, e.g., save to SPIFFS, display, etc.
+    }
+  } else {
+    server.send(400, "application/json", "{\"status\":\"Error\"}");
+  }
+}
 
 void handleRoot() {
   IPAddress clientIP = server.client().remoteIP();  // Get client IP address
@@ -125,8 +165,11 @@ void setup() {
   Serial.print("Access Point IP address: ");
   Serial.println(IP);
 
-  // Start web server and define route
+  // Start web server and define route for temp, humidity and brightness
   server.on("/post-data", HTTP_POST, handlePostRequest);
+  // Define route for receiving POST request with image data from esp32-cam
+  server.on("/upload", HTTP_POST, handleImageUpload);
+  
   server.begin();
   Serial.println("Web server started");
 
@@ -177,7 +220,9 @@ void loop() {
     lcd.print("        "); // Clear any previous humidity value (6 spaces)
     lcd.setCursor(12, 1); // Set the cursor back to where the value should start
     lcd.print(receivedTemperature);  // Display the humidity value
+
     } else {
+
     lcd.setCursor(0, 0); // Set the cursor to the first row, first column
     lcd.print("Brightness: ");  // Print the label
     lcd.setCursor(11, 0); // Set the cursor position to start after "Humidity: "
@@ -195,7 +240,7 @@ void loop() {
   }
 
   
-  // Send an HTTP POST request for light and presence to server
+  // Send via HTTP POST request for light and presence to server
   if ((millis() - lastTime2) > timerDelay2) {
       WiFiClient client;
       HTTPClient http;
@@ -236,6 +281,50 @@ void loop() {
     }
     lastTime1 = millis();
   }
+
+  // Send image to server
+  if(WiFi.status() == WL_CONNECTED){
+    HTTPClient http;
+    WiFiClient client;
+    http.begin(client, serverName3);
+    
+    // Prepare multipart/form-data for sending image
+    String boundary = "SmartHaus";
+    String header = "--" + boundary + "\r\nContent-Disposition: form-data; name=\"imageFile\"; filename=\"esp32-cam.jpg\"\r\nContent-Type: image/jpeg\r\n\r\n";
+    String tail = "\r\n--" + boundary + "--\r\n";
+
+    // Convert String to uint8_t* (byte array)
+    uint8_t* headerBytes = (uint8_t*)header.c_str();
+    uint8_t* tailBytes = (uint8_t*)tail.c_str();
+    
+    // Calculate total length
+    uint32_t totalLen = header.length() + imageBuffer.size() + tail.length();
+
+    // Add headers
+    http.addHeader("Content-Type", "multipart/form-data; boundary=" + boundary);
+    http.addHeader("Content-Length", String(totalLen));
+    
+    // Send the POST request header
+    int httpResponseCode = http.sendRequest("POST", headerBytes, header.length());
+    
+    if (httpResponseCode == HTTP_CODE_OK) {
+        // Send the image data in chunks
+        Serial.println("Sending image to server...");
+        
+        // Send image data
+        http.sendRequest("", imageBuffer.data(), imageBuffer.size());  // Send image buffer
+        
+        // Send the tail (boundary end)
+        http.sendRequest("", tailBytes, tail.length());  // Send boundary tail
+    } else {
+        Serial.println("Failed to send image. Response Code: " + String(httpResponseCode));
+    }
+    
+    // Close the HTTP client
+    http.end();
+}
+
+
   
   delay(5000);
   

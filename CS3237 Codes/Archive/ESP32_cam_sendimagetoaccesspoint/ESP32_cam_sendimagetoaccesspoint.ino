@@ -8,14 +8,14 @@
 
 #define LED_FLASH_PIN 4  // GPIO pin for the LED (on some ESP32-CAMs, it's GPIO 4)
 
-const char* ssid = "MitsubishiAttrage";
-const char* password = "Toyota Vios";
+const char* ssid = "ESP32_Access_Point";
+const char* password = "password123";
 
-String serverName = "192.168.115.8";
+String serverName = "192.168.4.1";
 
 String serverPath = "/upload";
 
-const int serverPort = 9091;
+const int serverPort = 80;
 
 bool camera_status = 0;
 bool photo_taken = 0;
@@ -23,8 +23,9 @@ bool photo_taken = 0;
 WiFiClient client;
 
 // Set your Static IP address
-IPAddress local_IP(192, 168, 115, 40);
-IPAddress gateway(192, 168,115, 159);
+IPAddress local_IP(192, 168, 4, 30);
+// Set your Gateway IP address
+IPAddress gateway(192, 168, 4, 1);
 IPAddress subnet(255, 255, 255, 0);
 
 // Web server running on port 80
@@ -51,6 +52,46 @@ WebServer server(80);
 
 const int timerInterval = 30000;    // time between each HTTP POST image
 unsigned long previousMillis = 0;   // last time image was sent
+
+const char index_html[] PROGMEM = R"rawliteral(
+<!DOCTYPE HTML><html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body { text-align:center; }
+    .vert { margin-bottom: 10%; }
+    .hori{ margin-bottom: 0%; }
+  </style>
+</head>
+<body>
+  <div id="container">
+    <h2>ESP32-CAM Last Photo</h2>
+    <p>It might take more than 5 seconds to capture a photo.</p>
+    <p>
+      <button onclick="rotatePhoto();">ROTATE</button>
+      <button onclick="capturePhoto()">CAPTURE PHOTO</button>
+      <button onclick="location.reload();">REFRESH PAGE</button>
+    </p>
+  </div>
+  <div><img src="saved-photo" id="photo" width="70%"></div>
+</body>
+<script>
+  var deg = 0;
+  function capturePhoto() {
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', "/capture", true);
+    xhr.send();
+  }
+  function rotatePhoto() {
+    var img = document.getElementById("photo");
+    deg += 90;
+    if(isOdd(deg/90)){ document.getElementById("container").className = "vert"; }
+    else{ document.getElementById("container").className = "hori"; }
+    img.style.transform = "rotate(" + deg + "deg)";
+  }
+  function isOdd(n) { return Math.abs(n % 2) == 1; }
+</script>
+</html>)rawliteral";
 
 void handlePost() {
   if (server.hasArg("plain") == false) {
@@ -112,6 +153,15 @@ String sendPhoto() {
     // Process the second image here (send to server, save, etc.)
     // For example, send it over HTTP or save it to SD card
   }
+  /*
+  camera_fb_t *fb = NULL;
+  fb = esp_camera_fb_get();
+  if(!fb) {
+    Serial.println("Camera capture failed");
+    delay(1000);
+    ESP.restart();
+  }
+  */
   
   Serial.println("Connecting to server: " + serverName);
 
@@ -251,6 +301,15 @@ void setup() {
 
 void loop() {
   server.handleClient();
+
+  /*
+  //unsigned long currentMillis = millis();
+  if (camera_status == 1) {
+    sendPhoto();
+    //previousMillis = currentMillis;
+    camera_status = 0;
+  }
+  */
 
   // Check if there's a transition from 0 to 1
   // Trigger sendPhoto() only if the door just opened (camera_status goes from 0 to 1)

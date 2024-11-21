@@ -205,6 +205,4 @@ void loop() {
   Serial.println(alarm_status);
 
   previousDoorState = doorState; // Update previous state
-
-  
 }
