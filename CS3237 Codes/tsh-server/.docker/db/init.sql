@@ -12,9 +12,9 @@ CREATE TABLE IF NOT EXISTS mb_data (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP -- Timestamp of the data entry
 );
 
-CREATE TABLE IF NOT EXISTS image_data (
+CREATE TABLE IF NOT EXISTS door_data (
     id SERIAL PRIMARY KEY,
-    image_link TEXT,              -- Stores the image link as a numeric value (could be URL or another identifier)
+    intrusion NUMERIC,              -- Stores the image link as a numeric value (could be URL or another identifier)
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP -- Timestamp of the data entry
 );
 

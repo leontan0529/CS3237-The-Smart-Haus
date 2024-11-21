@@ -18,16 +18,40 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 1,
   "links": [],
   "panels": [
+    {
+      "datasource": {
+        "type": "grafana-postgresql-datasource",
+        "uid": "my_unique_uid"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 0
+      },
+      "id": 13,
+      "options": {
+        "buttons": [
+          {
+            "datasource": "",
+            "query": "",
+            "text": ""
+          }
+        ],
+        "orientation": "horizontal"
+      },
+      "title": "Panel Title",
+      "type": "speakyourcode-button-panel"
+    },
     {
       "collapsed": false,
       "gridPos": {
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 0
+        "y": 8
       },
       "id": 10,
       "panels": [],
@@ -67,7 +91,7 @@
         "h": 8,
         "w": 8,
         "x": 0,
-        "y": 1
+        "y": 9
       },
       "id": 3,
       "options": {
@@ -85,7 +109,7 @@
         "showThresholdMarkers": true,
         "sizing": "auto"
       },
-      "pluginVersion": "11.2.1",
+      "pluginVersion": "11.2.0",
       "title": "Current Temperature",
       "type": "gauge"
     },
@@ -122,7 +146,7 @@
         "h": 8,
         "w": 8,
         "x": 8,
-        "y": 1
+        "y": 9
       },
       "id": 4,
       "options": {
@@ -140,7 +164,7 @@
         "showThresholdMarkers": true,
         "sizing": "auto"
       },
-      "pluginVersion": "11.2.1",
+      "pluginVersion": "11.2.0",
       "title": "Current Humidity",
       "type": "gauge"
     },
@@ -178,7 +202,7 @@
         "h": 8,
         "w": 8,
         "x": 16,
-        "y": 1
+        "y": 9
       },
       "id": 7,
       "options": {
@@ -196,7 +220,7 @@
         "showThresholdMarkers": true,
         "sizing": "auto"
       },
-      "pluginVersion": "11.2.1",
+      "pluginVersion": "11.2.0",
       "title": "Current Brightness",
       "type": "gauge"
     },
@@ -206,7 +230,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 9
+        "y": 17
       },
       "id": 9,
       "panels": [],
@@ -304,7 +328,7 @@
         "h": 10,
         "w": 8,
         "x": 0,
-        "y": 10
+        "y": 18
       },
       "id": 1,
       "options": {
@@ -430,7 +454,7 @@
         "h": 10,
         "w": 8,
         "x": 8,
-        "y": 10
+        "y": 18
       },
       "id": 2,
       "options": {
@@ -556,7 +580,7 @@
         "h": 10,
         "w": 8,
         "x": 16,
-        "y": 10
+        "y": 18
       },
       "id": 6,
       "options": {
@@ -595,7 +619,7 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 20
+        "y": 28
       },
       "id": 5,
       "panels": [],
@@ -641,7 +665,8 @@
             "mode": "absolute",
             "steps": [
               {
-                "color": "green"
+                "color": "green",
+                "value": null
               },
               {
                 "color": "red",
@@ -656,7 +681,7 @@
         "h": 8,
         "w": 12,
         "x": 0,
-        "y": 21
+        "y": 29
       },
       "id": 11,
       "options": {
@@ -697,7 +722,7 @@
         "h": 8,
         "w": 12,
         "x": 12,
-        "y": 21
+        "y": 29
       },
       "id": 12,
       "options": {
@@ -709,7 +734,7 @@
         "content": "<img src=\"https://safeguardsystems.co.uk/wp-content/uploads/2021/11/Apartment-block-security.jpg\" alt=\"Description\" width=\"600\" height=\"400\">\n",
         "mode": "html"
       },
-      "pluginVersion": "11.2.1",
+      "pluginVersion": "11.2.0",
       "title": "DoorCam",
       "type": "text"
     }
@@ -728,6 +753,6 @@
   "timezone": "browser",
   "title": "The Smart Haus",
   "uid": "cdzte3nlkywaoa",
-  "version": 10,
+  "version": 1,
   "weekStart": ""
 }

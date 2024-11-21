@@ -12,12 +12,12 @@ const (
 type Endpoint string
 
 const (
-	ROOT        Endpoint = "/"
-	ESP32TH     Endpoint = "/esp32-th"
-	ESP32MB     Endpoint = "/esp32-mb"
-	ESP32IMAGES Endpoint = "/esp32-images"
-	HEALTHZ     Endpoint = "/healthz"
-	LIVENESS    Endpoint = "/liveness"
+	ROOT      Endpoint = "/"
+	ESP32TH   Endpoint = "/esp32-th"
+	ESP32MB   Endpoint = "/esp32-mb"
+	ESP32DOOR Endpoint = "/esp32-door"
+	HEALTHZ   Endpoint = "/healthz"
+	LIVENESS  Endpoint = "/liveness"
 )
 
 type LogRequest struct {

@@ -1,0 +1,28 @@
+#datasources:
+#  - name:
+#    type: postgres
+#    access: proxy
+#    url: postgres:5432 
+#    database: tsh-backend
+#    user: admin
+#    password: admin
+#    orgId: 1
+#    uid: my_unique_uid
+#    isDefault: true  
+#
+apiVersion: 1
+
+datasources:
+    - name: PostgreSQL
+      type: postgres
+      access: proxy
+      url: postgres:5432
+      database: tsh-backend
+      user: admin
+      secureJsonData:
+        password: admin
+      jsonData:
+        sslmode: disable
+      orgId: 1
+      uid: my_unique_uid
+      isDefault: true
