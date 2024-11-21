@@ -13,14 +13,15 @@ int previousDoorState = LOW; // Track previous state to detect changes
 // true is arm, false is disarm
 bool alarm_status = false;
 
-const char* ssid = "ESP32_Access_Point";
-const char* password = "password123";
+const char* ssid = "MitsubishiAttrage";
+const char* password = "Toyota Vios";
 
 // Web server running on port 80
 WebServer server(80);
 
 //Define server IP and port for notification
-const char* serverName = "http://192.168.4.30:80/setStatus"; //ESP32_cam details
+const char* serverName = "http://192.168.115.40/setStatus"; //ESP32_cam details
+const char* serverName2 = "http://192.168.115.8:8080/esp32-door"; //server endpoint for door status
 
 StaticJsonDocument<1024> jsonDocument;
 
@@ -80,8 +81,8 @@ void setupApi() {
 }
 
 // Set your Static IP address
-IPAddress local_IP(192, 168, 4, 10);
-IPAddress gateway(192, 168, 4, 1);
+IPAddress local_IP(192, 168, 115, 50);
+IPAddress gateway(192, 168,115, 159);
 IPAddress subnet(255, 255, 255, 0);
 
 void setup() {
@@ -106,6 +107,51 @@ void setup() {
 
   pinMode(buzzer, OUTPUT); // Set the output mode
   pinMode(DOOR_SENSOR_PIN, INPUT_PULLUP); // Set ESP32 pin to input pull-up mode
+}
+
+void sendDoorOpenNotificationtoserver() {
+  // Sending an HTTP POST request for temperature and humidity on behalf of esp32_TH to server
+  
+    if(WiFi.status() == WL_CONNECTED){
+      WiFiClient client;
+      HTTPClient http;
+      // Domain name or IP address with port
+      http.begin(client, serverName2);
+      http.addHeader("Content-Type", "application/json");
+      int intrusion = 2;
+      String jsonPayload = "{\"Intrusion\": \"" + String(intrusion) + "\"}";
+      int httpResponseCode = http.POST(jsonPayload);
+      Serial.print("HTTP Response code: ");
+      Serial.println(httpResponseCode);
+      String response = http.getString();
+      Serial.println("Response: " + response);
+      http.end();
+    }
+    else {
+      Serial.println("WiFi Disconnected");
+    }
+}
+
+void sendDoorCloseNotificationtoserver() {
+  
+    if(WiFi.status() == WL_CONNECTED){
+      WiFiClient client;
+      HTTPClient http;
+      // Domain name or IP address with port
+      http.begin(client, serverName2);
+      http.addHeader("Content-Type", "application/json");
+      int intrusion = 0;
+      String jsonPayload = "{\"Intrusion\": \"" + String(intrusion) + "\"}";
+      int httpResponseCode = http.POST(jsonPayload);
+      Serial.print("HTTP Response code: ");
+      Serial.println(httpResponseCode);
+      String response = http.getString();
+      Serial.println("Response: " + response);
+      http.end();
+    }
+    else {
+      Serial.println("WiFi Disconnected");
+    }
 }
 
 void sendDoorOpenNotification() {
@@ -143,6 +189,12 @@ void loop() {
 
   if (!alarm_status) {
       digitalWrite(buzzer, HIGH); //Stop the sound
+  }
+
+  if (doorState == HIGH) {
+    sendDoorOpenNotificationtoserver();
+  } else if (doorState == LOW) {
+    sendDoorCloseNotificationtoserver();
   }
 
   sendDoorOpenNotification(); // Send notification when door opens
